@@ -1,0 +1,10 @@
+#!/bin/dash
+
+thisFilename=$(basename "$0")
+repoName=".shrug"
+
+if mkdir "$repoName" 2> /dev/null; then
+    echo "Initialized empty shrug repository in .shrug"
+else 
+    echo "$thisFilename: error: $repoName already exists"
+fi

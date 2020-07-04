@@ -1,0 +1,14 @@
+04/07/20
+Start: 10:12
+End: 10:29
+Activity: initial setup
+Comments: read the specs for the first time and touched all new files for subset 0
+
+04/07/20
+Start: 10:33
+End: 10:43
+Activity: coding
+Comments: started implementing subset 0. Completed shrug-init first draft
+
+
+
