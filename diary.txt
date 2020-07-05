@@ -10,5 +10,11 @@ End: 10:43
 Activity: coding
 Comments: started implementing subset 0. Completed shrug-init first draft
 
+04/07/20
+Start: 6:28
+End: 7:06
+Activity: coding
+Comments: started implementing shrug-add and shrug-commit. Done with draft for shrug-add 
+
 
 

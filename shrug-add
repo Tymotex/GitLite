@@ -1,0 +1,32 @@
+#!/bin/dash
+
+repoName=".shrug"
+stageDir="$repoName/.index"
+
+# Check if the repo exists
+if ! test -e "$repoName"; then
+    echo "$0: error: no $repoName directory containing shrug repository"
+fi
+
+# Creating the index directory if it doesn't exist
+if ! test -e "$stageDir"; then
+    mkdir "$stageDir"
+fi
+
+for eachFile in "$@"; do
+    if test -e "$eachFile"; then
+        echo " ===> Adding: $eachFile"
+
+        # The filename already exists - ie. it was staged already.
+        if test -e "$stageDir/$eachFile"; then
+            echo "     ---> $eachFile already staged. Overwriting"
+        fi
+
+        cp "$eachFile" "$stageDir"
+    else
+        # Specified file does not exist in the current directory
+        echo "$0: error: invalid filename '$eachFile'"
+        exit 1
+    fi
+done
+

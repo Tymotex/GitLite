@@ -1,0 +1,33 @@
+#!/bin/dash
+
+# Variables:
+repoName=".shrug"
+stageDir="$repoName/.index"
+commitNum=0
+commitDir="$repoName/$commitNum"
+logFile="$repoName/.log"
+
+while test -e "$commitDir"; do
+    commitNum=$(expr $commitNum + 1)
+    commitDir="$repoName/$commitNum"
+done
+
+# Creating a snapshot folder
+mkdir "$commitDir" || exit 1
+
+# Check if the index/staging area is empty (NOT ROBUST?)
+if test -z $(ls "${stageDir}"); then
+    echo "nothing to commit"
+    exit 1
+fi
+
+# For each file in the index/staging area, move each into the snapshot folder
+for eachFile in $(ls "${stageDir}"); do
+    echo "Committing $eachFile"
+    mv "${stageDir}/$eachFile" "$commitDir"
+done
+
+# Writing to the log file
+echo "$commitNum <message here>"
+
+echo "Committed as commit $commitNum"

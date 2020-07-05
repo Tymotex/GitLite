@@ -1,0 +1,10 @@
+#!/bin/dash
+
+repoName=".shrug"
+logFile="$repoName/.log"
+
+
+
+
+
+
