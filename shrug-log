@@ -3,7 +3,7 @@
 repoName=".shrug"
 logFile="$repoName/.log"
 
-
+cat "$logFile"
 
 
 

@@ -1,5 +1,24 @@
 #!/bin/dash
 
+while test $# -gt 0; do  # $# is the number of args
+    case "$1" in
+        -a) 
+            echo "Adding all files"
+            shift
+            ;;
+        -m)
+            # Extract the commit message
+            shift
+            message=$1
+            shift
+            ;;
+        *)
+            echo usage: shrug-commit [-a] -m commit-message
+            exit 1
+            ;;
+    esac
+done
+
 # Variables:
 repoName=".shrug"
 stageDir="$repoName/.index"
@@ -23,11 +42,11 @@ fi
 
 # For each file in the index/staging area, move each into the snapshot folder
 for eachFile in $(ls "${stageDir}"); do
-    echo "Committing $eachFile"
+    # echo " ===> Committing $eachFile"
     mv "${stageDir}/$eachFile" "$commitDir"
 done
 
 # Writing to the log file
-echo "$commitNum <message here>"
+sed -i.old "1s;^;$commitNum ${message}\n;" "$logFile"
 
 echo "Committed as commit $commitNum"
