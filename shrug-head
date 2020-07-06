@@ -1,0 +1,19 @@
+#!/bin/dash
+
+repoName=".shrug"
+commitNum=0
+commitDir=""
+
+while test -e "$repoName/$commitNum"; do
+    commitDir="$repoName/$commitNum"
+    commitNum=$(expr $commitNum + 1)
+done
+
+if test -z "$commitDir"; then
+    exit 1
+else
+    ls "$commitDir"
+    exit 0
+fi
+
+

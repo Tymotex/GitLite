@@ -10,17 +10,23 @@ End: 10:43
 Activity: coding
 Comments: started implementing subset 0. Completed shrug-init first draft
 
-04/07/20
+05/07/20
 Start: 6:28
 End: 7:06
 Activity: coding
 Comments: started implementing shrug-add and shrug-commit. Done with draft for shrug-add 
 
-04/07/20
+05/07/20
 Start: 7:40
 End: 7:52
 Activity: coding
 Comments: made shrug-commit prepend to a log file in .shrug and added argument flag handling
+
+06/07/20
+Start: 9:39
+End: 10:39
+Activity: coding
+Comments: fixed log file writing and started shrug-show
 
 
 
