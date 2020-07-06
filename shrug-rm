@@ -1,0 +1,21 @@
+#!/bin/dash
+
+while test $# -gt 0; do  # $# is the number of args
+    case "$1" in
+        --force) 
+            shift
+            ;;
+        --cached)
+            # Extract the commit message
+            shift
+            ;;
+        *)
+            echo "Filenames: $@"
+            exit 1
+            ;;
+    esac
+done
+
+if test $# -lt 1; then
+    echo "usage: $0 [--force] [--cached] <filenames>"
+fi

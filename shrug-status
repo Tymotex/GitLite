@@ -1,0 +1,29 @@
+#!/bin/dash
+
+repoName=".shrug"
+stageDir="$repoName/index"
+latestCommit=$(sh get-head)
+headDir="$repoName/$latestCommit"
+
+# Creating the index directory if it doesn't exist (should this be done?)
+if ! test -e "$stageDir"; then
+    mkdir "$stageDir"
+    exit 1
+fi
+
+for eachFile in $(ls $stageDir); do
+    stageFile="$stageDir/$eachFile"
+    headFile="$headDir/$eachFile"
+    
+    if test -e "$headFile"; then
+        # If the file exists in both the head and the stage, check if they are identical
+        if test -z "$(diff $headFile $stageFile)"; then
+            echo "$eachFile - same as repo"
+        else 
+            echo "$eachFile - file changed, different changes staged for commit | changes staged for commit | changes not staged for commit"
+        fi
+    else
+        # The stage has a file which is not in the head. This means the commit should proceed
+        echo "$eachFile - untracked"
+    fi
+done

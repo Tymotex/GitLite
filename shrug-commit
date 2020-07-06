@@ -20,23 +20,22 @@ if ! test -e "$stageDir"; then
     exit 1
 fi
 
-# Check if the index/staging area is empty (Should I do this? NOT ROBUST either?)
-if test -z "$(ls "${stageDir}")"; then
-    echo "nothing to commit"
-    exit 1
-fi
-
-# Check if the stage contains additional files/modifications that need to be
-# committed to a new snapshot by comparing with the latest commit
-if ! sh should-commit $repoName/$(sh get-head) "$stageDir" > /dev/null; then
-    echo "nothing to commit"
-    exit 1
-fi
-
 while test $# -gt 0; do  # $# is the number of args
     case "$1" in
         -a) 
-            echo "Adding all files"
+            for eachFile in $(ls "$stageDir"); do
+                # echo "!!! Fetching $eachFile from current directory"
+                # If the file has been deleted, then also remove from the index
+                if test -e "./$eachFile"; then
+                    # echo "Found here!"
+                    cp "./$eachFile" "$stageDir/$eachFile"
+                else
+                    # echo " ===> File has been deleted"
+                    rm "$stageDir/$eachFile"
+                fi
+
+            done
+            # dash shrug-add 
             shift
             ;;
         -m)
@@ -50,11 +49,24 @@ while test $# -gt 0; do  # $# is the number of args
             shift
             ;;
         *)
-            "echo usage: $0 [-a] -m commit-message"
+            echo "usage: $0 [-a] -m commit-message"
             exit 1
             ;;
     esac
 done
+
+# Check if the index/staging area is empty (Should I do this? NOT ROBUST either?)
+if test -z "$(ls "${stageDir}")"; then
+    echo "nothing to commit"
+    exit 1
+fi
+
+# Check if the stage contains additional files/modifications that need to be
+# committed to a new snapshot by comparing with the latest commit
+if ! sh should-commit > /dev/null; then
+    echo "nothing to commit"
+    exit 1
+fi
 
 while test -e "$commitDir"; do
     commitNum=$(expr $commitNum + 1)

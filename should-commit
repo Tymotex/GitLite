@@ -36,5 +36,17 @@ for eachFile in $(ls $stageDir); do
     fi
 done
 
+for eachFile in $(ls $headDir); do
+    stageFile="$stageDir/$eachFile"
+    headFile="$headDir/$eachFile"
+    
+    echo "Comparing: $stageFile and $headFile"
+    if ! test -e "$stageFile"; then
+        # The head commit has a file which is not in the stage. This means the commit should proceed
+        echo " ===> File in HEAD does not exist in stage. A file must have been removed. Commit can proceed"
+        exit 0
+    fi
+done
+
 echo "Nothing to commit"
 exit 1
