@@ -1,5 +1,38 @@
 #!/bin/dash
 
+# Variables:
+repoName=".shrug"
+stageDir="$repoName/index"
+commitNum=0
+commitDir="$repoName/$commitNum"
+logFile="$repoName/.log"
+
+# Check if the repo exists
+if ! test -e "$repoName"; then
+    echo "$0: error: no .shrug directory containing shrug repository exists"
+    exit 1
+fi
+
+# Creating the index directory if it doesn't exist (should this be done?)
+if ! test -e "$stageDir"; then
+    mkdir "$stageDir"
+    echo "nothing to commit"
+    exit 1
+fi
+
+# Check if the index/staging area is empty (Should I do this? NOT ROBUST either?)
+if test -z "$(ls "${stageDir}")"; then
+    echo "nothing to commit"
+    exit 1
+fi
+
+# Check if the stage contains additional files/modifications that need to be
+# committed to a new snapshot by comparing with the latest commit
+if ! sh should-commit $repoName/$(sh get-head) "$stageDir" > /dev/null; then
+    echo "nothing to commit"
+    exit 1
+fi
+
 while test $# -gt 0; do  # $# is the number of args
     case "$1" in
         -a) 
@@ -10,21 +43,18 @@ while test $# -gt 0; do  # $# is the number of args
             # Extract the commit message
             shift
             message=$1
+            if test -z "$message"; then
+                echo "usage: $0 [-a] -m commit-message"
+                exit 1
+            fi
             shift
             ;;
         *)
-            echo usage: shrug-commit [-a] -m commit-message
+            "echo usage: $0 [-a] -m commit-message"
             exit 1
             ;;
     esac
 done
-
-# Variables:
-repoName=".shrug"
-stageDir="$repoName/index"
-commitNum=0
-commitDir="$repoName/$commitNum"
-logFile="$repoName/.log"
 
 while test -e "$commitDir"; do
     commitNum=$(expr $commitNum + 1)
@@ -33,12 +63,6 @@ done
 
 # Creating a snapshot folder
 mkdir "$commitDir" || exit 1
-
-# Check if the index/staging area is empty (NOT ROBUST?)
-if test -z "$(ls "${stageDir}")"; then
-    echo "nothing to commit"
-    exit 1
-fi
 
 # For each file in the index/staging area, copy each into the snapshot folder
 for eachFile in $(ls "${stageDir}"); do

@@ -1,0 +1,19 @@
+#!/bin/dash
+# Exits with status 1 if a head commit doesn't exist
+# Exits with status 0 if the head does exist, and prints the head's commit number
+
+repoName=".shrug"
+commitNum=0
+commitDir="$repoName/$commitNum"
+
+if ! test -e "$commitDir"; then
+    exit 1
+fi
+
+while test -e "$repoName/$(expr $commitNum + 1)"; do
+    commitDir="$repoName/$commitNum"
+    commitNum=$(expr $commitNum + 1)
+done
+
+echo "$commitNum"
+exit 0

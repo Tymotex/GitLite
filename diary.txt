@@ -27,6 +27,3 @@ Start: 9:39
 End: 10:39
 Activity: coding
 Comments: fixed log file writing and started shrug-show
-
-
-

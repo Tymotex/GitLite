@@ -1,0 +1,40 @@
+#!/bin/dash
+# Exits with status 0 if there are additional files/modifications in the stage that
+# are currently not in the latest head directory.
+# Otherwise exit with status 1 if there is nothing to commit
+
+repoName=".shrug"
+stageDir="$repoName/index"
+latestCommit=$(sh get-head)
+headDir="$repoName/$latestCommit"
+
+# Creating the index directory if it doesn't exist (should this be done?)
+if ! test -e "$stageDir"; then
+    mkdir "$stageDir"
+    exit 1
+fi
+
+for eachFile in $(ls $stageDir); do
+    stageFile="$stageDir/$eachFile"
+    headFile="$headDir/$eachFile"
+    
+    echo "Comparing: $stageFile and $headFile"
+
+    if test -e "$headFile"; then
+        # If the file exists in both the head and the stage, check if they are identical
+        echo " ===> File exists in the head directory"
+        if test -z "$(diff $headFile $stageFile)"; then
+            echo " ===> Files are identical!"
+        else 
+            echo " ===> File modified. Commit can proceed"
+            exit 0
+        fi
+    else
+        # The stage has a file which is not in the head. This means the commit should proceed
+        echo " ===> File in stage does not exist in head. Commit can proceed"
+        exit 0
+    fi
+done
+
+echo "Nothing to commit"
+exit 1
