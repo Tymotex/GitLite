@@ -1,0 +1,43 @@
+#!/bin/dash
+
+repoName=".shrug"
+currBranch="current-branch"
+
+if test $# = 0; then
+    # Print all branches in the repo directory
+    ls "$repoName" | tr ' ' '\n' | egrep -v "index|$currBranch" 
+elif test $# -eq 1; then
+    if test $1 = "-d"; then
+        # Only -d was supplied
+        echo "$0: error: branch name required"
+        exit 1
+    else
+        # Treating first argument as the new branch name
+        # Check for invalid branch name
+        branchName=$1
+        if sh validname $branchName; then
+            # Creating a new branch
+            echo Creating branch $1
+
+            mkdir "$repoName/$branchName"
+
+            # Copy over all files over the new branch directory?
+
+            # That's it? How about the log, ie. commit history?
+
+        else
+            echo "$0: error: invalid branch name '$branchName'"
+        fi
+    fi
+elif test $# -eq 2; then
+    if test $1 = "-d"; then
+        branchName=$2
+        if sh validname $branchName; then
+            echo Deleting branch $branchName
+        else
+            echo "$0: error: invalid branch name '$branchName'"
+        fi        
+    else
+        echo "usage: $0 [-d] <branch>"
+    fi
+fi

@@ -45,3 +45,9 @@ Start: 5:00
 End: 7:32
 Activity: coding
 Comments: done with subset 1's status and rm, first draft
+
+07/07/20
+Start: 7:40
+End: 8:08
+Activity: coding
+Comments: started checkout using symlinks

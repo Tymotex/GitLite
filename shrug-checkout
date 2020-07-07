@@ -1,0 +1,17 @@
+#!/bin/dash
+
+repoName=".shrug"
+stageDir="$repoName/index"
+currBranch="current-branch"
+branchName=$1
+branchDir="$repoName/$branchName"
+
+cd "$repoName" # TODO: is this robust enough?
+
+if test "$(readlink $currBranch)" = $branchName; then
+    echo "Already on '$branchName'"
+    exit 0
+else
+    echo "Switched to branch '$branchName'"
+    ln -sfn "$branchName" "$currBranch"
+fi
