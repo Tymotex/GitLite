@@ -27,3 +27,21 @@ Start: 9:39
 End: 10:39
 Activity: coding
 Comments: fixed log file writing and started shrug-show
+
+06/07/20
+Start: 12:00
+End: 2:23
+Activity: coding
+Comments: done with subset 0's first draft as well as commit -a
+
+06/07/20
+Start: 10:00
+End: 11:23
+Activity: coding
+Comments: done with subset 1's commit -a and started status
+
+07/07/20
+Start: 5:00
+End: 7:32
+Activity: coding
+Comments: done with subset 1's status and rm, first draft

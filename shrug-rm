@@ -1,21 +1,132 @@
 #!/bin/dash
 
+repoName=".shrug"
+stageDir="$repoName/index"
+cwd=$(pwd)  # TODO: Pwd won't work if run in diff directory...
+latestCommit=$(sh get-head)
+headDir="$repoName/$latestCommit"
+
+default=true
+force=false
+cached=false
 while test $# -gt 0; do  # $# is the number of args
     case "$1" in
         --force) 
+            default=false
+            force=true
             shift
             ;;
         --cached)
-            # Extract the commit message
+            default=false
+            cached=true
             shift
             ;;
         *)
-            echo "Filenames: $@"
-            exit 1
+            break
+            shift
             ;;
     esac
 done
 
-if test $# -lt 1; then
+if test $# -le 0; then
     echo "usage: $0 [--force] [--cached] <filenames>"
+    exit 1
 fi
+
+# echo "Filenames: $@"
+
+stageFiles=$(ls $stageDir)
+cwdFiles=$(ls $cwd)
+headFiles=$(ls $headDir)
+
+for eachFile in "$@"; do
+    stageFile="$stageDir/$eachFile"
+    headFile="$headDir/$eachFile"
+    currFile="$cwd/$eachFile"
+    # TODO: catch invalid filenames
+    # echo $currFile
+    # echo $stageFile
+    # echo $headFile
+
+    # All files exist
+    if test -e "$currFile" && test -e "$stageFile" && test -e "$headFile"; then
+        if test $default = true; then
+            if test -z "$(diff $currFile $stageFile)"; then
+                if test -z "$(diff $stageFile $headFile)"; then
+                    rm $currFile $stageFile
+                else 
+                    echo "$0: error: '$eachFile' has changes staged in the index"
+                fi
+            else
+                if test -z "$(diff $stageFile $headFile)"; then
+                    echo "$0: error: '$eachFile' in repository is different to working file"
+                else 
+                    echo "$0: error: '$eachFile' in index is different to both working file and repository"
+                fi
+            fi
+        elif test $cached = true && test $force = true; then
+            rm "$stageFile"
+        elif test $cached = true; then
+            if test -z "$(diff $currFile $stageFile)"; then
+                if test -z "$(diff $stageFile $headFile)"; then
+                    rm $stageFile
+                else 
+                    rm $stageFile
+                fi
+            else
+                if test -z "$(diff $stageFile $headFile)"; then
+                    rm $stageFile
+                else 
+                    echo "$0: error: '$eachFile' in index is different to both working file and repository"
+                fi
+            fi
+        elif test $force = true; then 
+            rm "$stageFile" "$currFile"
+        fi
+    # One file missing
+    elif test -e "$currFile" && test -e "$stageFile" && ! test -e "$headFile"; then
+        if test $default = true; then
+            if test -z "$(diff $currFile $stageFile)"; then
+                echo "$0: error: '$eachFile' has changes staged in the index"
+            else
+                echo "$0: error: '$eachFile' in index is different to both working file and repository"
+            fi
+        elif test $cached = true && test $force = true; then
+            rm "$stageFile"
+        elif test $cached = true; then
+            if test -z "$(diff $currFile $stageFile)"; then
+                rm "$stageFile"
+            else
+                rm $stageFile
+                echo "$0: error: '$eachFile' in index is different to both working file and repository"
+            fi
+        elif test $force = true; then 
+            rm "$stageFile" "$currFile"
+        fi
+    elif test -e "$currFile" && ! test -e "$stageFile" && test -e "$headFile"; then
+        echo "$0: error: '$eachFile' is not in the shrug repository"
+        exit 0
+    elif ! test -e "$currFile" && test -e "$stageFile" && test -e "$headFile"; then
+        rm $stageFile
+        exit 0
+    # Two files missing
+    elif test -e "$currFile" && ! test -e "$stageFile" && ! test -e "$headFile"; then
+        echo "$0: error: '$eachFile' is not in the shrug repository"
+        exit 0
+    elif ! test -e "$currFile" && test -e "$stageFile" && ! test -e "$headFile"; then
+        rm $stageFile
+        exit 0
+    elif ! test -e "$currFile" && ! test -e "$stageFile" && test -e "$headFile"; then
+        echo "$0: error: '$eachFile' is not in the shrug repository"
+        exit 0
+    elif ! test -e "$currFile" && ! test -e "$stageFile" && ! test -e "$headFile"; then
+        echo "$0: error: '$eachFile' is not in the shrug repository"
+        exit 0
+    fi
+done
+
+
+
+
+
+

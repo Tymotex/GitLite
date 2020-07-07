@@ -2,6 +2,7 @@
 
 repoName=".shrug"
 stageDir="$repoName/index"
+cwd=$(pwd)
 latestCommit=$(sh get-head)
 headDir="$repoName/$latestCommit"
 
@@ -11,19 +12,68 @@ if ! test -e "$stageDir"; then
     exit 1
 fi
 
-for eachFile in $(ls $stageDir); do
+# Check if the repository has any commits (TODO is this right?)
+# if ! sh get-head; then
+#     echo "$0: error: your repository does not have any commits yet"
+#     exit 1
+# fi
+
+stageFiles=$(ls $stageDir)
+cwdFiles=$(ls $cwd)
+headFiles=$(ls $headDir)
+
+# TODO: String set?
+for eachFile in $(echo $stageFiles $cwdFiles $headFiles | tr " " "\n" | sort | uniq | tr "\n" " "); do
     stageFile="$stageDir/$eachFile"
     headFile="$headDir/$eachFile"
-    
-    if test -e "$headFile"; then
-        # If the file exists in both the head and the stage, check if they are identical
-        if test -z "$(diff $headFile $stageFile)"; then
-            echo "$eachFile - same as repo"
-        else 
-            echo "$eachFile - file changed, different changes staged for commit | changes staged for commit | changes not staged for commit"
+    currFile="$cwd/$eachFile"
+    # TODO: catch invalid filenames
+
+    # All files exist
+    # TODO FIX THIS
+    if test -e "$currFile" && test -e "$stageFile" && test -e "$headFile"; then
+        if test -z "$(diff $currFile $stageFile)"; then
+            if test -z "$(diff $stageFile $headFile)"; then
+                echo "$eachFile - same as repo"
+            else 
+                echo "$eachFile - file changed, changes staged for commit"
+            fi
+        else
+            if test -z "$(diff $stageFile $headFile)"; then
+                echo "$eachFile - file changed, changes not staged for commit"
+            else 
+                echo "$eachFile - file changed, different changes staged for commit"
+            fi
         fi
-    else
-        # The stage has a file which is not in the head. This means the commit should proceed
+    fi
+
+    # One file missing
+    if test -e "$currFile" && test -e "$stageFile" && ! test -e "$headFile"; then
+        if test -z "$(diff $currFile $stageFile)"; then
+            echo "$eachFile - added to index"
+        else
+            echo "$eachFile - added to index, file changed"
+        fi
+    fi
+
+    if test -e "$currFile" && ! test -e "$stageFile" && test -e "$headFile"; then
         echo "$eachFile - untracked"
+    fi
+
+    if ! test -e "$currFile" && test -e "$stageFile" && test -e "$headFile"; then
+        echo "$eachFile - file deleted"
+    fi
+
+    # Two files missing
+    if test -e "$currFile" && ! test -e "$stageFile" && ! test -e "$headFile"; then
+        echo "$eachFile - untracked"
+    fi
+
+    if ! test -e "$currFile" && test -e "$stageFile" && ! test -e "$headFile"; then
+        echo "$eachFile - added to index, file deleted"
+    fi
+
+    if ! test -e "$currFile" && ! test -e "$stageFile" && test -e "$headFile"; then
+        echo "$eachFile - deleted"
     fi
 done

@@ -56,10 +56,10 @@ while test $# -gt 0; do  # $# is the number of args
 done
 
 # Check if the index/staging area is empty (Should I do this? NOT ROBUST either?)
-if test -z "$(ls "${stageDir}")"; then
-    echo "nothing to commit"
-    exit 1
-fi
+# if test -z "$(ls "${stageDir}")"; then
+#     echo "nothing to commit"
+#     exit 1
+# fi
 
 # Check if the stage contains additional files/modifications that need to be
 # committed to a new snapshot by comparing with the latest commit

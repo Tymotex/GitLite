@@ -26,7 +26,12 @@ for eachFile in "$@"; do
         cp "$eachFile" "$stageDir"
     else
         # Specified file does not exist in the current directory
-        echo "$0: error: can not open '$eachFile'"
+        # If it exists in the index, then it was probably deleted
+        if test -e "$stageDir/$eachFile"; then
+            rm "$stageDir/$eachFile"
+        else 
+            echo "$0: error: can not open '$eachFile'"
+        fi
         exit 1
     fi
 done
