@@ -14,4 +14,7 @@ if test "$(readlink $currBranch)" = $branchName; then
 else
     echo "Switched to branch '$branchName'"
     ln -sfn "$branchName" "$currBranch"
+
+    # Remove everything in cwd
+    cp $currBranch/* ../new
 fi

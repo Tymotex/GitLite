@@ -3,9 +3,22 @@
 repoName=".shrug"
 currBranch="current-branch"
 
+# No shrug directory
+if ! test -e $repoName; then
+    echo "$0: error: no .shrug directory containing shrug repository exists"
+    exit 1
+fi
+
+# If no commits, don't allow the use of branches
+if ! sh get-head > /dev/null; then
+    echo "$0: error: your repository does not have any commits yet"
+    exit 1
+fi
+
 if test $# = 0; then
     # Print all branches in the repo directory
-    ls "$repoName" | tr ' ' '\n' | egrep -v "index|$currBranch" 
+    # Filter out index, current-branch and commit subdirectories
+    ls "$repoName" | tr ' ' '\n' | egrep -v "index|$currBranch|^[0-9]+" 
 elif test $# -eq 1; then
     if test $1 = "-d"; then
         # Only -d was supplied
@@ -15,15 +28,17 @@ elif test $# -eq 1; then
         # Treating first argument as the new branch name
         # Check for invalid branch name
         branchName=$1
-        if sh validname $branchName; then
-            # Creating a new branch
-            echo Creating branch $1
+        if sh validname $branchName > /dev/null; then
             newBranch="$repoName/$branchName"
+            if test -e $newBranch; then
+                echo "$0: error: branch '$newBranch' already exists"
+                exit 1
+            fi
+
+            # Creating a new branch
             mkdir "$newBranch"
             # Copy over all files over the new branch directory?
             cp $(ls) "$newBranch" 2> /dev/null
-
-            # That's it? How about the log, ie. commit history?
 
         else
             echo "$0: error: invalid branch name '$branchName'"

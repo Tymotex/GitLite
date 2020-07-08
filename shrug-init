@@ -3,6 +3,7 @@
 thisFilename=$(basename "$0")
 repoName=".shrug"
 master="master"
+currBranch="current-branch"
 
 if mkdir "$repoName" 2> /dev/null; then
     # Creating a master branch
@@ -10,6 +11,8 @@ if mkdir "$repoName" 2> /dev/null; then
     mkdir "$masterBranch"
     # TODO: Push everything in cwd to master branch?
     cp $(ls) $masterBranch 2> /dev/null  # TODO: Add -r?
+    cd "$repoName"  # TODO: not safe?
+    ln -sfn "$master" "$currBranch"
     echo "Initialized empty shrug repository in .shrug"
 else 
     echo "$thisFilename: error: $repoName already exists"
