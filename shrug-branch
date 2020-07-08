@@ -18,10 +18,10 @@ elif test $# -eq 1; then
         if sh validname $branchName; then
             # Creating a new branch
             echo Creating branch $1
-
-            mkdir "$repoName/$branchName"
-
+            newBranch="$repoName/$branchName"
+            mkdir "$newBranch"
             # Copy over all files over the new branch directory?
+            cp $(ls) "$newBranch" 2> /dev/null
 
             # That's it? How about the log, ie. commit history?
 
