@@ -45,8 +45,8 @@ else
         else
             if ! shrug-file-should-commit $eachFile > /dev/null; then
                 # echo " ===> DELETING FILE $eachFile"
-                rm "$eachFile"
-                rm "$stageDir/$eachFile"
+                rm "$eachFile" 2> /dev/null
+                rm "$stageDir/$eachFile" 2> /dev/null
             fi  
         fi
     done

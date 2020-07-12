@@ -3,6 +3,11 @@
 . shrug-conf
 cwd=$(pwd)
 
+# TODO: Terrible code
+latestBranchCommit=$(shrug-log | head -1 | cut -d' ' -f1)
+headDir="$repoName/$latestBranchCommit"
+
+
 # Check if the repository has any commits
 if ! sh get-head > /dev/null; then
     echo "$thisFile: error: your repository does not have any commits yet"
