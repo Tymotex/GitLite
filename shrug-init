@@ -1,19 +1,25 @@
 #!/bin/dash
+# Creates the repo, an empty master branch and an empty index
 
-thisFilename=$(basename "$0")
-repoName=".shrug"
-master="master"
-currBranch="current-branch"
+# Initialises variables used in this script
+. shrug-conf
 
+# Creating the repo subdirectory
 if mkdir "$repoName" 2> /dev/null; then
-    # Creating a master branch
+    # Creating the index directory if it doesn't exist
+    if ! test -e "$stageDir"; then
+        mkdir "$stageDir"
+    fi
+    
+    # Creating an empty master branch under the repo subdirectory 
+    # and set it as the current branch (by symlink)
     masterBranch="$repoName/$master"
     mkdir "$masterBranch"
-    # TODO: Push everything in cwd to master branch?
-    cp $(ls) $masterBranch 2> /dev/null  # TODO: Add -r?
-    cd "$repoName"  # TODO: not safe?
+    cd "$repoName"
     ln -sfn "$master" "$currBranch"
+    cd ..
+    
     echo "Initialized empty shrug repository in .shrug"
 else 
-    echo "$thisFilename: error: $repoName already exists"
+    echo "$thisFile: error: $repoName already exists"
 fi

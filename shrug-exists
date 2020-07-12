@@ -1,0 +1,9 @@
+#!/bin/dash
+# Checks if the repo exists in the current directory
+
+. shrug-conf
+
+if ! test -e "$repoName"; then
+    echo "$thisFile: error: no $repoName directory containing shrug repository exists"
+    exit 1
+fi

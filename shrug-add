@@ -1,38 +1,31 @@
 #!/bin/dash
+# Stages the target files in the repo index
 
-repoName=".shrug"
-stageDir="$repoName/index"
-
-# Check if the repo exists
-if ! test -e "$repoName"; then
-    echo "$0: error: no $repoName directory containing shrug repository exists"
-    exit 1
-fi
-
-# Creating the index directory if it doesn't exist
-if ! test -e "$stageDir"; then
-    mkdir "$stageDir"
-fi
+# Initialises variables used in this script
+. shrug-conf
+# Checks if the repo exists
+. shrug-exists
 
 for eachFile in "$@"; do
     if test -e "$eachFile"; then
-        # echo " ===> Adding: $eachFile"
-
-        # The filename already exists - ie. it was staged already.
-        # if test -e "$stageDir/$eachFile"; then
-            # echo "     ---> $eachFile already staged. Overwriting"
-        # fi
-
+        # Target file already exists - ie. it was staged already
+        # cp overwrites the existing staged file by default
         cp "$eachFile" "$stageDir"
     else
-        # Specified file does not exist in the current directory
-        # If it exists in the index, then it was probably deleted
-        if test -e "$stageDir/$eachFile"; then
+        # Target file does not exist in the current directory.
+        if test -e "$stageDir/$eachFile"; then  
+            # If it exists in the index however, then it was probably from the cwd
+            # Proceed to remove the target from the index
             rm "$stageDir/$eachFile"
         else 
-            echo "$0: error: can not open '$eachFile'"
+            if ! sh shrug-validname "$eachFile"; then
+                # Check that the filename is valid
+                echo "$thisFile: error: invalid filename '$eachFile'"
+                exit 1
+            else 
+                echo "$thisFile: error: can not open '$eachFile'"
+                exit 1
+            fi
         fi
-        exit 1
     fi
 done
-

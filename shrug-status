@@ -1,28 +1,18 @@
 #!/bin/dash
 
-repoName=".shrug"
-stageDir="$repoName/index"
+. shrug-conf
 cwd=$(pwd)
-latestCommit=$(sh get-head)
-headDir="$repoName/$latestCommit"
 
-# Creating the index directory if it doesn't exist (should this be done?)
-if ! test -e "$stageDir"; then
-    mkdir "$stageDir"
+# Check if the repository has any commits
+if ! sh get-head > /dev/null; then
+    echo "$thisFile: error: your repository does not have any commits yet"
     exit 1
 fi
-
-# Check if the repository has any commits (TODO is this right?)
-# if ! sh get-head; then
-#     echo "$0: error: your repository does not have any commits yet"
-#     exit 1
-# fi
 
 stageFiles=$(ls $stageDir)
 cwdFiles=$(ls $cwd)
 headFiles=$(ls $headDir)
 
-# TODO: String set?
 for eachFile in $(echo $stageFiles $cwdFiles $headFiles | tr " " "\n" | sort | uniq | tr "\n" " "); do
     stageFile="$stageDir/$eachFile"
     headFile="$headDir/$eachFile"
@@ -30,7 +20,6 @@ for eachFile in $(echo $stageFiles $cwdFiles $headFiles | tr " " "\n" | sort | u
     # TODO: catch invalid filenames
 
     # All files exist
-    # TODO FIX THIS
     if test -e "$currFile" && test -e "$stageFile" && test -e "$headFile"; then
         if test -z "$(diff $currFile $stageFile)"; then
             if test -z "$(diff $stageFile $headFile)"; then

@@ -1,73 +1,47 @@
 #!/bin/dash
 
-# Variables:
-repoName=".shrug"
-stageDir="$repoName/index"
-commitNum=0
-commitDir="$repoName/$commitNum"
-logFile="$repoName/.log"
+. shrug-conf
+. shrug-exists
 
-# Check if the repo exists
-if ! test -e "$repoName"; then
-    echo "$0: error: no .shrug directory containing shrug repository exists"
-    exit 1
-fi
-
-# Creating the index directory if it doesn't exist (should this be done?)
-if ! test -e "$stageDir"; then
-    mkdir "$stageDir"
-    echo "nothing to commit"
-    exit 1
-fi
-
+message=""
 while test $# -gt 0; do  # $# is the number of args
     case "$1" in
         -a) 
             for eachFile in $(ls "$stageDir"); do
-                # echo "!!! Fetching $eachFile from current directory"
-                # If the file has been deleted, then also remove from the index
                 if test -e "./$eachFile"; then
-                    # echo "Found here!"
                     cp "./$eachFile" "$stageDir/$eachFile"
                 else
-                    # echo " ===> File has been deleted"
+                    # If the current file has been deleted in the cwd, then also remove it from the index
                     rm "$stageDir/$eachFile"
                 fi
-
             done
-            # dash shrug-add 
             shift
             ;;
         -m)
-            # Extract the commit message
+            # Extracting the commit message
             shift
             message=$1
             if test -z "$message"; then
-                echo "usage: $0 [-a] -m commit-message"
+                echo "usage: $thisFile [-a] -m commit-message"
                 exit 1
             fi
             shift
             ;;
         *)
-            echo "usage: $0 [-a] -m commit-message"
+            echo "usage: $thisFile [-a] -m commit-message"
             exit 1
             ;;
     esac
 done
 
-# Check if the index/staging area is empty (Should I do this? NOT ROBUST either?)
-# if test -z "$(ls "${stageDir}")"; then
-#     echo "nothing to commit"
-#     exit 1
-# fi
-
-# Check if the stage contains additional files/modifications that need to be
-# committed to a new snapshot by comparing with the latest commit
-if ! sh should-commit > /dev/null; then
+# Checks if the commit should proceed or if there's 'nothing to commit'
+# TODO: Alternative to sh? Why does dash not work?
+if ! sh shrug-should-commit > /dev/null; then
     echo "nothing to commit"
     exit 1
 fi
 
+# Get new commit number
 while test -e "$commitDir"; do
     commitNum=$(expr $commitNum + 1)
     commitDir="$repoName/$commitNum"
@@ -78,8 +52,9 @@ mkdir "$commitDir" || exit 1
 
 # For each file in the index/staging area, copy each into the snapshot folder
 for eachFile in $(ls "${stageDir}"); do
-    # echo " ===> Committing $eachFile"
-    cp "${stageDir}/$eachFile" "$commitDir"
+    cp "${stageDir}/${eachFile}" "$commitDir"
+    # Also copy to the current branch subdirectory (so that it contains the latest commit)
+    cp "${stageDir}/${eachFile}" "${repoName}/${currBranch}/${eachFile}"  
 done
 
 # Writing to the log file
@@ -87,6 +62,7 @@ logMessage="$commitNum ${message}"
 if ! test -e "$logFile"; then
     echo "$logMessage" > "$logFile"
 else
+    # Prepends the log message to the current branch's log file
     sed -i.old "1s;^;$commitNum ${message}\n;" "$logFile"
 fi
 

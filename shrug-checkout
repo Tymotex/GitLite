@@ -1,20 +1,75 @@
 #!/bin/dash
 
-repoName=".shrug"
-stageDir="$repoName/index"
-currBranch="current-branch"
+. shrug-conf
+. shrug-exists
+
 branchName=$1
 branchDir="$repoName/$branchName"
 
-cd "$repoName" # TODO: is this robust enough?
+cd "$repoName"
 
 if test "$(readlink $currBranch)" = $branchName; then
+    # If current-branch is already pointing to the target branch, do nothing
     echo "Already on '$branchName'"
     exit 0
 else
-    echo "Switched to branch '$branchName'"
-    ln -sfn "$branchName" "$currBranch"
+    # If the branch doesn't exist, we can't checkout to it
+    if ! test -e $branchName; then
+        echo "$thisFile: error: unknown branch '$branchName'"
+        exit 1
+    fi
+    # TODO: User needs to commit their changes before checking out
 
-    # Remove everything in cwd
-    cp $currBranch/* ../new
+    stageFiles=$(ls $stage)
+    cwdFiles=$(ls ../)
+    branchFiles=$(ls $branchName)
+    # echo "===== Stage Files   ====="
+    # echo "$stageFiles"
+    # echo "===== CWD Files     ====="
+    # echo "$cwdFiles"
+    # echo "===== Branch Files  ====="
+    # echo "$branchFiles"
+
+
+
+    cd ..
+    for eachFile in $(echo $stageFiles $cwdFiles $branchFiles | tr " " "\n" | sort | uniq | tr "\n" " "); do
+        if test -e "$repoName/$branchName/$eachFile"; then
+            if ! shrug-file-should-commit $eachFile  > /dev/null; then
+                # echo " ===> REPLACING FILE $eachFile"
+                rm "$eachFile" 2> /dev/null
+                rm "$stageDir/$eachFile" 2> /dev/null
+                cp "$repoName/$branchName/$eachFile" "$eachFile"
+                cp "$repoName/$branchName/$eachFile" "$stageDir/$eachFile"
+            fi  
+        else
+            if ! shrug-file-should-commit $eachFile > /dev/null; then
+                # echo " ===> DELETING FILE $eachFile"
+                rm "$eachFile"
+                rm "$stageDir/$eachFile"
+            fi  
+        fi
+    done
+    cd $repoName
+
+    ln -sfn "$branchName" "$currBranch"
+    echo "Switched to branch '$branchName'"
 fi
+
+
+    # # Remove every file inside the cwd AND the index which is in the current branch
+    # for eachFile in $(ls $currBranch); do
+    #     # echo "Wiping $eachFile from CWD and index"
+    #     rm "../$eachFile"
+    #     rm "$stage/$eachFile"
+    # done
+
+    # ln -sfn "$branchName" "$currBranch"
+    # echo "Switched to branch '$branchName'"
+
+    # # Copy every file inside the current branch into the cwd AND the index
+    # for eachFile in $(ls $currBranch); do
+    #     # echo "Fetching $eachFile to CWD"
+    #     cp "${currBranch}/${eachFile}" "../$eachFile"
+    #     cp "${currBranch}/${eachFile}" "$stage/$eachFile"
+    # done

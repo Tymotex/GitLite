@@ -1,24 +1,11 @@
 #!/bin/dash
 
-# Variables
-repoName=".shrug"
-stageDir="index"
-
-# Check if the repo exists (TODO? Is this right? this fails the autotest but I swear the reference does this)
-# if ! test -e "$repoName"; then
-#     echo "$0: error: no .shrug directory containing shrug repository exists"
-#     exit 1
-# fi
-
-# No commits in the repo (TODO?)
-# if ! sh get-head > /dev/null; then
-# 	echo "$0: error: your repository does not have any commits yet"
-# 	exit 1
-# fi
+. shrug-conf
+. shrug-exists
 
 # Incorrect usage
 if test "$#" -ne 1; then
-  echo "usage: $0 <commit>:<filename>"
+  echo "usage: $thisFile <commit>:<filename>"
   exit 1
 fi
 
@@ -27,30 +14,31 @@ fileToShow=$(echo $1 | cut -d':' -f2 -s)
 
 if test -z "$commitNum" && test -z "$fileToShow"; then
 	# No colon inside the supplied argument
-	echo "$0: error: invalid object $1"	
+	echo "$thisFile: error: invalid object $1"	
 	exit 1
-elif ! sh validname "$fileToShow"; then
-	echo "$0: error: invalid filename '$fileToShow'"
+elif ! sh shrug-validname "$fileToShow" 2> /dev/null; then
+	echo "$thisFile: error: invalid filename '$fileToShow'"
 	exit 1
 fi
 
 commitDir=""
 if test -z "$commitNum"; then
-	# No commit number/hash specified. Using index
-	commitDir="$repoName/$stageDir"
-	if ! test -e "$commitDir/$fileToShow"; then
-		echo "$0: error: '$fileToShow' not found in $stageDir"
+	# No commit number/hash specified. Showing file from the index
+	commitDir="$stageDir"
+	if ! test -e "$stageDir/$fileToShow"; then
+		# File to show doesn't exist in the index
+		echo "$thisFile: error: '$fileToShow' not found in $stage"
 		exit 1
 	fi
 else 
 	commitDir="$repoName/$commitNum"
 	if ! test -e "$commitDir"; then
-		echo "$0: error: unknown commit '$commitNum'"
+		# Specified commit doesn't exist
+		echo "$thisFile: error: unknown commit '$commitNum'"
 		exit 1 
 	fi
-
 	if ! test -e "$commitDir/$fileToShow"; then
-		echo "$0: error: '$fileToShow' not found in commit $commitNum"
+		echo "$thisFile: error: '$fileToShow' not found in commit $commitNum"
 		exit 1
 	fi
 fi
