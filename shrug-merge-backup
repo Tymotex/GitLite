@@ -35,15 +35,12 @@ if ! test -e $branchTipDir; then
 fi
 
 # Check if this is a fast-forward merge
-isFastForward=false
-
 baseDir="$repoName/.${targetBranch}-base"
 currBranchDir="$repoName/$currBranch"
 
-# Check if the base is identical to the current branch. If it is,
-# this indicates the current branch never diverged
-if shrug-directory-diff "$baseDir" "$currBranchDir" > /dev/null; then
-    # Fast forward merging!
+
+if test -z $(diff -r "$baseDir" "$currBranchDir" | egrep -v "[.]log"); then
+    # This is a fast forward merge.
     # Remove all files in CWD, index and current branch
     rm $(ls) 2> /dev/null
     cd $stageDir
@@ -51,6 +48,7 @@ if shrug-directory-diff "$baseDir" "$currBranchDir" > /dev/null; then
     cd ../$currBranch
     rm $(ls) 2> /dev/null
     cd ../..
+
     # Copy over every file in the target branch tip to CWD, index and current branch
     for eachFile in $(ls $branchTipDir); do
         cp "$branchTipDir/$eachFile" "$eachFile"
@@ -73,6 +71,13 @@ else
     currBranchFiles=$(ls $currBranchDir)
     targetBranchFiles=$(ls $targetBranchDir)
 
+    # echo "===== Curr Branch Files    ====="
+    # echo $(ls $currBranchDir)
+    # echo "===== Base Files           ====="
+    # echo $(ls $baseDir)
+    # echo "===== Target Branch Files  ====="
+    # echo $(ls $targetBranchDir)
+
     fileSet=$(echo $currBranchFiles $baseFiles $targetBranchFiles | tr " " "\n" | sort | uniq | tr "\n" " ")
     for eachFile in $fileSet; do
         currFile="$currBranchDir/$eachFile"
@@ -80,6 +85,13 @@ else
         baseFileCopy="${eachFile}-base"
         cp "$baseFile" "$baseFileCopy" 2> /dev/null
         targetFile="$targetBranchDir/$eachFile"
+
+        # echo "=== Base ==="
+        # cat "$baseFileCopy"
+        # echo "=== Curr ==="
+        # cat "$currFile"
+        # echo "=== Targ ==="
+        # cat "$targetFile"
 
         diff -u "$baseFileCopy" "$currFile" > .patch.1 2> /dev/null
         diff -u "$baseFileCopy" "$targetFile" > .patch.2 2> /dev/null
@@ -104,6 +116,13 @@ else
         baseFileCopy=".${eachFile}-base.copy"
         cp "$baseFile" "$baseFileCopy" 2> /dev/null
         targetFile="$targetBranchDir/$eachFile"
+
+        # echo "=== Base ==="
+        # cat "$baseFileCopy"
+        # echo "=== Curr ==="
+        # cat "$currFile"
+        # echo "=== Targ ==="
+        # cat "$targetFile"
 
         if test -e "$currFile" && test -e "$targetFile"; then
             diff -u "$baseFileCopy" "$currFile" > .patch.1 2> /dev/null
@@ -130,3 +149,5 @@ else
     cp tmp "$logFile"
     rm tmp
 fi
+
+

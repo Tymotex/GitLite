@@ -29,16 +29,20 @@ elif test $# -eq 1; then
         branchName=$1
         if sh shrug-validname $branchName > /dev/null; then
             newBranch="$repoName/$branchName"
+            newBranchBase="$repoName/.$branchName-base"
             if test -e $newBranch; then
                 echo "$thisFile: error: branch '$branchName' already exists"
                 exit 1
             fi
 
-            # Creating a new branch
+            # Creating a new branch and save the base commit
             mkdir "$newBranch"
-            # Copy over all files over the new branch directory?
+            mkdir "$newBranchBase"
+
+            # Copy over all files over the new branch directory
             cd "$repoName/$currBranch"  # TODO: bad style
             cp $(ls) "../$branchName"  
+            cp $(ls) "../.${branchName}-base"  
             cd ../../
             # Copy over the log file, if it exists
             if test -e $logFile; then
@@ -66,10 +70,12 @@ elif test $# -eq 2; then
                 echo "$thisFile: error: can't delete the current branch you're on"
                 exit 1
             fi
+            # Throw error if there is unmerged work in the target branch
+            # How does git decide this?
+
             # Deleting the branch
             echo "Deleted branch '$branchName'"
             rm -r "$branchDir"
-            # TODO: check for unmerged work 
         else
             echo "$thisFile: error: invalid branch name '$branchName'"
         fi        

@@ -1,0 +1,28 @@
+#!/bin/dash
+
+shrug-reset
+seq -f "line %.0f" 1 7 >a
+seq -f "line %.0f" 1 7 >b
+seq -f "line %.0f" 1 7 >c
+seq -f "line %.0f" 1 7 >d
+shrug-add a b c d
+shrug-commit -m commit-0
+shrug-branch b1
+shrug-checkout b1
+seq -f "line %.0f" 0 7 >a
+seq -f "line %.0f" 1 8 >b
+seq -f "line %.0f" 0 8 >c
+sed -i 4d d
+seq -f "line %.0f" 1 7 >e
+shrug-add e
+shrug-commit -a -m commit-1
+shrug-checkout master
+seq -f "line %.0f" 1 8 >a
+seq -f "line %.0f" 0 7 >b
+sed -i 4d c
+seq -f "line %.0f" 0 8 >d
+seq -f "line %.0f" 1 7 >f
+shrug-add f
+shrug-commit -a -m commit-2
+shrug-merge b1 -m merge1
+shrug-log
