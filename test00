@@ -1,0 +1,31 @@
+#!/bin/dash
+shrug-wipe
+
+shrug-init
+seq 1 3 > a
+shrug-add a
+shrug-commit -m "Added a"
+shrug-branch b1
+shrug-checkout b1
+seq 2 4 > b
+shrug-add b
+shrug-commit -m "Added b to b1"
+shrug-status
+shrug-checkout master
+shrug-status
+
+echo "===== Reference ====="
+shrug-wipe
+
+2041 shrug-init
+seq 1 3 > a
+2041 shrug-add a
+2041 shrug-commit -m "Added a"
+2041 shrug-branch b1
+2041 shrug-checkout b1
+seq 2 4 > b
+2041 shrug-add b
+2041 shrug-commit -m "Added b to b1"
+2041 shrug-status
+2041 shrug-checkout master
+2041 shrug-status

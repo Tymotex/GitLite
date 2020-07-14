@@ -50,6 +50,12 @@ done
 # Creating a snapshot folder
 mkdir "$commitDir" || exit 1
 
+
+# First remove everything in the current branch
+cd $repoName/$currBranch
+rm $(ls) 2> /dev/null
+cd ../..
+
 # For each file in the index/staging area, copy each into the snapshot folder
 for eachFile in $(ls "${stageDir}"); do
     cp "${stageDir}/${eachFile}" "$commitDir"

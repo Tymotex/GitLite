@@ -1,0 +1,16 @@
+#!/bin/dash
+shrug-wipe
+
+shrug-init
+echo hello > a
+shrug-add a
+shrug-commit -m "Added a"
+
+shrug-branch b1
+echo world >> a
+shrug-checkout b1
+
+shrug-status
+
+
+

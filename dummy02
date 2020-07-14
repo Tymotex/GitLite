@@ -1,0 +1,4 @@
+#!/bin/dash
+
+shrug-reset
+echo hello > a

@@ -1,0 +1,12 @@
+#!/bin/dash
+shrug-reset 
+rm *
+
+touch a
+shrug-add a
+shrug-commit -m commit-0
+shrug-branch b1
+shrug-checkout b1
+touch b
+shrug-add b
+shrug-commit -m commit-1

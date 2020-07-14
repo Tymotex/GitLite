@@ -1,0 +1,4 @@
+#!/bin/dash
+
+rm -rf .shrug *
+2041 shrug-init

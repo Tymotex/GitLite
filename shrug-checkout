@@ -6,6 +6,10 @@
 branchName=$1
 branchDir="$repoName/$branchName"
 
+# TODO: Terrible code
+latestBranchCommit=$(shrug-log | head -1 | cut -d' ' -f1)
+headFile="$repoName/$latestBranchCommit/$targetFile"
+
 cd "$repoName"
 
 if test "$(readlink $currBranch)" = $branchName; then
@@ -31,11 +35,50 @@ else
     # echo "$branchFiles"
 
 
-
     cd ..
+
+    # TODO: overwritten by checkout
+    willOverwrite=false
+
+
+    for eachFile in $(echo $stageFiles $cwdFiles $branchFiles | tr " " "\n" | sort | uniq | tr "\n" " "); do
+        cwdFile="$eachFile"
+        branchFile="$repoName/$branchName/$eachFile"
+        stageFile="$stageDir/$eachFile"
+        headFile="$headDir/$eachFile"
+
+        # If the file exists in target branch AND cwd BUT NOT in index, then
+        # replacing this file would overwrite uncommitted changes
+        if test -e "$branchFile" && test -e "$cwdFile" && ! test -e "$stageFile"; then
+            if test $willOverwrite = "false"; then
+                echo "$thisFile: error: Your changes to the following files would be overwritten by checkout:"
+                willOverwrite=true
+            fi
+            echo "$eachFile"
+        fi
+
+        # If the file doesn't exist in the target branch, checkout may deleted uncommitted
+        # work in the CWD file with the same name
+        if ! test -e "$branchFile" ; then
+
+            if shrug-alt-file-should-commit "$eachFile" > /dev/null; then
+                if test $willOverwrite = "false"; then
+                    echo "$thisFile: error: Your changes to the following files would be overwritten by checkout:"
+                    willOverwrite=true
+                fi
+                echo "$eachFile"
+            fi
+        fi
+    done
+
+    if test $willOverwrite = "true"; then
+        exit 1
+    fi
+
+    # For each file in either the stage, cwd or target branch
     for eachFile in $(echo $stageFiles $cwdFiles $branchFiles | tr " " "\n" | sort | uniq | tr "\n" " "); do
         if test -e "$repoName/$branchName/$eachFile"; then
-            if ! shrug-file-should-commit $eachFile  > /dev/null; then
+            if ! shrug-file-should-commit $eachFile > /dev/null; then
                 # echo " ===> REPLACING FILE $eachFile"
                 rm "$eachFile" 2> /dev/null
                 rm "$stageDir/$eachFile" 2> /dev/null

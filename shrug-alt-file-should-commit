@@ -48,7 +48,7 @@ fi
 
 if test -e "$currFile" && ! test -e "$stageFile" && test -e "$headFile"; then
     echo "$targetFile - untracked"
-    exit 0
+    exit 1
 fi
 
 if ! test -e "$currFile" && test -e "$stageFile" && test -e "$headFile"; then
@@ -59,7 +59,7 @@ fi
 # Two files missing
 if test -e "$currFile" && ! test -e "$stageFile" && ! test -e "$headFile"; then
     echo "$targetFile - untracked"
-    exit 0
+    exit 1
 fi
 
 if ! test -e "$currFile" && test -e "$stageFile" && ! test -e "$headFile"; then

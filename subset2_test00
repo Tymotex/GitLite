@@ -1,0 +1,25 @@
+#!/bin/dash
+
+# 1 - file in cwd
+# 2 - file in index
+# 3 - file in b1 
+
+
+# If 1 diff 2 diff 3
+shrug-wipe
+2041 shrug-init
+echo hello > a
+
+2041 shrug-add a
+2041 shrug-commit -m "Added a"
+
+2041 shrug-branch b1
+
+echo world >> a
+2041 shrug-add a
+
+echo again >> a
+2041 shrug-checkout b1
+
+2041 shrug-status
+# Switch was fine.

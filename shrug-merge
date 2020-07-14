@@ -1,2 +1,61 @@
 #!/bin/dash
 
+. shrug-conf
+. shrug-exists
+
+# Getting the target branch
+targetBranch="$1"
+shift
+
+message=""
+while test $# -gt 0; do  # $# is the number of args
+    case "$1" in
+        -m)
+            # Extracting the commit message
+            shift
+            message=$1
+            shift
+            ;;
+        *)
+            exit 1
+            ;;
+    esac
+done
+if test -z "$message"; then
+    echo "$thisFile: error: empty commit message"
+    exit 1
+fi
+
+branchTipDir="$repoName/$targetBranch/"
+
+
+# Fast forward merge
+isFastForward=true
+if test isFastForward = "true"; then
+    # Remove all files in CWD, index and current branch
+    rm $(ls) 2> /dev/null
+    cd $stageDir
+    rm $(ls) 2> /dev/null
+    cd ../$currBranch
+    rm $(ls) 2> /dev/null
+    cd ../..
+
+    # Copy over every file in the target branch tip to CWD, index and current branch
+    for eachFile in $(ls $branchTipDir); do
+        cp "$branchTipDir/$eachFile" "$eachFile"
+        cp "$branchTipDir/$eachFile" "$stageDir/$eachFile"
+        cp "$branchTipDir/$eachFile" "$repoName/$currBranch/$eachFile"
+    done
+
+    # Update the log file of current branch
+    cp "$branchTipDir/.log" "$logFile"
+
+    echo "Fast-forward: no commit created"
+fi
+
+
+
+
+
+
+

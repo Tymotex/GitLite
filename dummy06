@@ -1,0 +1,22 @@
+#!/bin/dash
+
+# Fast forward merge
+shrug-reset
+touch a b c d
+shrug-add a b c d
+shrug-commit -m "Added a b c d"
+
+shrug-branch b1
+shrug-checkout b1
+touch e f
+rm d
+shrug-add e f d
+shrug-status
+shrug-commit -m "Removed d and added e f"
+
+shrug-checkout master
+shrug-status
+
+shrug-merge b1 -m "Merging b1 to master"
+
+

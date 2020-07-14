@@ -1,0 +1,45 @@
+#!/bin/dash
+
+echo "===== CASE 1 UNCOMMITTED ====="
+shrug-reset-hard
+
+echo 1 > a
+
+2041 shrug-add a
+2041 shrug-commit -m "added a"
+
+2041 shrug-branch b1
+
+echo 2 >> a
+2041 shrug-add a
+
+echo 3 >> a
+2041 shrug-status  # a - file changed, different changes staged for commit
+2041 shrug-show :a
+
+2041 shrug-checkout b1
+2041 shrug-status  # a - file changed, different changes staged for commit (didn't swap out the file)
+2041 shrug-show :a
+
+echo "===== CASE 2 COMMITTED ====="
+shrug-reset-hard
+
+echo 1 > a
+
+2041 shrug-add a
+2041 shrug-commit -m "added a"
+
+2041 shrug-branch b1
+
+echo 2 >> a
+2041 shrug-add a
+
+echo 3 >> a
+2041 shrug-add a
+2041 shrug-commit -m "a: 1 2 3 in cwd and index"
+2041 shrug-status  # a - same as repo
+2041 shrug-show :a
+
+2041 shrug-checkout b1
+2041 shrug-status  # a - file changed, different changes staged for commit (didn't swap out the file)
+2041 shrug-show :a

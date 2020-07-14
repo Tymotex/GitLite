@@ -1,0 +1,19 @@
+#!/bin/dash
+
+shrug-reset
+echo hello >a
+shrug-add a
+shrug-commit -m commit-A
+shrug-branch b1
+echo world >>a
+shrug-checkout b1
+shrug-status
+shrug-checkout master
+shrug-add a
+shrug-status
+shrug-checkout b1
+shrug-status
+shrug-checkout master
+shrug-commit -a -m commit-B
+shrug-checkout b1
+shrug-status

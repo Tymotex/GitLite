@@ -1,0 +1,21 @@
+#!/bin/dash
+
+shrug-wipe
+rm *
+2041 shrug-init
+echo hello > a
+
+2041 shrug-add a
+2041 shrug-commit -m "Added a containing hello"
+
+# Create branch b1
+2041 shrug-branch b1
+
+# Before switching, create b and stage it
+echo hello > b
+2041 shrug-add b
+2041 shrug-status
+
+echo "After switching to b1"
+2041 shrug-checkout b1
+2041 shrug-status
