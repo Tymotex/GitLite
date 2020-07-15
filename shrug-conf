@@ -11,9 +11,7 @@ stage="index"
 stageDir="$repoName/$stage"
 logFile="$repoName/$currBranch/.log"
 
-unmerged="$repoName/$currBranch/.unmerged-changes"
-
 commitNum=0
 commitDir="$repoName/$commitNum"
-latestCommit=$(sh get-head)
+latestCommit=$(shrug-get-head)
 headDir="$repoName/$latestCommit"

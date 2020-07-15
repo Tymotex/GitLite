@@ -10,7 +10,6 @@ if mkdir "$repoName" 2> /dev/null; then
     if ! test -e "$stageDir"; then
         mkdir "$stageDir"
     fi
-    
     # Creating an empty master branch under the repo subdirectory 
     # and set it as the current branch (by symlink)
     masterBranch="$repoName/$master"
@@ -18,7 +17,6 @@ if mkdir "$repoName" 2> /dev/null; then
     cd "$repoName"
     ln -sfn "$master" "$currBranch"
     cd ..
-    
     echo "Initialized empty shrug repository in .shrug"
 else 
     echo "$thisFile: error: $repoName already exists"

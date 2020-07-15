@@ -1,6 +1,8 @@
 #!/bin/dash
 
+# Initialises variables used in this script
 . shrug-conf
+# Checks if the repo exists
 . shrug-exists
 
 # Incorrect usage
@@ -16,7 +18,7 @@ if test -z "$commitNum" && test -z "$fileToShow"; then
 	# No colon inside the supplied argument
 	echo "$thisFile: error: invalid object $1"	
 	exit 1
-elif ! sh shrug-validname "$fileToShow" 2> /dev/null; then
+elif ! shrug-validname "$fileToShow" 2> /dev/null; then
 	echo "$thisFile: error: invalid filename '$fileToShow'"
 	exit 1
 fi

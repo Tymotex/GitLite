@@ -1,0 +1,6 @@
+#!/bin/dash
+# 
+ 
+targetFile=$1
+latestBranchCommit=$(shrug-log | head -1 | cut -d' ' -f1)
+echo "$repoName/$latestBranchCommit/$targetFile"

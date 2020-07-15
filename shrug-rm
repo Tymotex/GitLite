@@ -1,7 +1,9 @@
 #!/bin/dash
 
+# Initialises variables used in this script
 . shrug-conf
-cwd=$(pwd) 
+# Checks if the repo exists
+. shrug-exists
 
 default=true
 force=false
@@ -31,7 +33,6 @@ if test $# -le 0; then
 fi
 
 # First check if all the supplied filenames exist in the current directory or index
-# TODO: Extract this out?
 for eachFile in "$@"; do
     if ! test -e "$stageDir/$eachFile"; then
         echo "$thisFile: error: '$eachFile' is not in the shrug repository"
@@ -42,21 +43,22 @@ for eachFile in "$@"; do
 done
 
 stageFiles=$(ls $stageDir)
-cwdFiles=$(ls $cwd)
+cwdFiles=$(ls)
 headFiles=$(ls $headDir)
 
 for eachFile in "$@"; do
     stageFile="$stageDir/$eachFile"
     headFile="$headDir/$eachFile"
-    currFile="$cwd/$eachFile"
+    currFile="$eachFile"
     # Check that the filename is valid
     if ! sh shrug-validname "$eachFile"; then
         echo "$thisFile: error: invalid filename '$eachFile'"
         exit 1
     fi
 
-    # All files exist
+    # Cases where the current file exists in CWD, stage and head
     if test -e "$currFile" && test -e "$stageFile" && test -e "$headFile"; then
+        # Default deletion from both stage and index
         if test $default = true; then
             if test -z "$(diff $currFile $stageFile)"; then
                 if test -z "$(diff $stageFile $headFile)"; then
@@ -72,8 +74,10 @@ for eachFile in "$@"; do
                 fi
             fi
         elif test $cached = true && test $force = true; then
+            # Force delete the file from the index
             rm "$stageFile"
         elif test $cached = true; then
+            # Deletion from the index only
             if test -z "$(diff $currFile $stageFile)"; then
                 if test -z "$(diff $stageFile $headFile)"; then
                     rm $stageFile
@@ -90,17 +94,20 @@ for eachFile in "$@"; do
         elif test $force = true; then 
             rm "$stageFile" "$currFile"
         fi
-    # One file missing
+    # One file missing from either CWD, stage or head
     elif test -e "$currFile" && test -e "$stageFile" && ! test -e "$headFile"; then
         if test $default = true; then
+            # Default deletion from both stage and index
             if test -z "$(diff $currFile $stageFile)"; then
                 echo "$thisFile: error: '$eachFile' has changes staged in the index"
             else
                 echo "$thisFile: error: '$eachFile' in index is different to both working file and repository"
             fi
         elif test $cached = true && test $force = true; then
+            # Force delete the file from the index
             rm "$stageFile"
         elif test $cached = true; then
+            # Deletion from the index only
             if test -z "$(diff $currFile $stageFile)"; then
                 rm "$stageFile"
             else
@@ -116,7 +123,7 @@ for eachFile in "$@"; do
     elif ! test -e "$currFile" && test -e "$stageFile" && test -e "$headFile"; then
         rm $stageFile
         exit 0
-    # Two files missing
+    # Two files missing from CWD, stage or head
     elif test -e "$currFile" && ! test -e "$stageFile" && ! test -e "$headFile"; then
         echo "$thisFile: error: '$eachFile' is not in the shrug repository"
         exit 0
@@ -131,9 +138,3 @@ for eachFile in "$@"; do
         exit 0
     fi
 done
-
-
-
-
-
-

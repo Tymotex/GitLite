@@ -7,7 +7,6 @@
 . shrug-exists
 
 # First check if all the supplied filenames exist in the current directory or index
-# TODO: Extract this out? Same thing in shrug-add
 for eachFile in "$@"; do
     if ! test -e "$eachFile"; then
         if ! test -e "$stageDir/$eachFile"; then
@@ -42,6 +41,3 @@ for eachFile in "$@"; do
         fi
     fi
 done
-
-
-

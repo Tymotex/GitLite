@@ -5,8 +5,6 @@
 
 branchName=$1
 branchDir="$repoName/$branchName"
-
-# TODO: Terrible code
 latestBranchCommit=$(shrug-log | head -1 | cut -d' ' -f1)
 headFile="$repoName/$latestBranchCommit/$targetFile"
 
@@ -50,7 +48,7 @@ else
         # If the file doesn't exist in the target branch, checkout may deleted uncommitted
         # work in the CWD file with the same name
         if ! test -e "$branchFile" ; then
-            if shrug-alt-file-should-commit "$eachFile" > /dev/null; then
+            if shrug-file-intersects "$eachFile" > /dev/null; then
                 if test $willOverwrite = "false"; then
                     echo "$thisFile: error: Your changes to the following files would be overwritten by checkout:"
                     willOverwrite=true

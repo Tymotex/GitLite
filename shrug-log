@@ -1,13 +1,14 @@
 #!/bin/dash
 # Shows the current branch's commit log
 
+# Initialises variables used in this script
 . shrug-conf
+# Checks if the repo exists
 . shrug-exists
 
 if ! test -e "$logFile"; then
     echo "$thisFile: error: your repository does not have any commits yet"
     exit 1
 else
-
     cat "$logFile"
 fi

@@ -1,0 +1,78 @@
+#!/bin/dash
+# Exits with 1 if the target file is the same as repo, untracked,
+# or doesn't exist in the branch 
+# Exits with 0 otherwise
+
+. shrug-conf
+cwd=$(pwd)
+
+targetFile=$1
+stageFile="$stageDir/$targetFile"
+currFile="$cwd/$targetFile"
+latestBranchCommit=$(shrug-log | head -1 | cut -d' ' -f1)
+headFile="$repoName/$latestBranchCommit/$targetFile"
+
+# All files exist
+if test -e "$currFile" && test -e "$stageFile" && test -e "$headFile"; then
+    if test -z "$(diff $currFile $stageFile)"; then
+        if test -z "$(diff $stageFile $headFile)"; then
+            echo "$targetFile - same as repo"
+            exit 1
+        else 
+            echo "$targetFile - file changed, changes staged for commit"
+            exit 0
+        fi
+    else
+        if test -z "$(diff $stageFile $headFile)"; then
+            echo "$targetFile - file changed, changes not staged for commit"
+            exit 0
+        else 
+            echo "$targetFile - file changed, different changes staged for commit"
+            exit 0
+        fi
+    fi
+fi
+
+# One file missing
+if test -e "$currFile" && test -e "$stageFile" && ! test -e "$headFile"; then
+    if test -z "$(diff $currFile $stageFile)"; then
+        echo "$targetFile - added to index"
+        exit 0
+    else
+        echo "$targetFile - added to index, file changed"
+        exit 0
+    fi
+fi
+
+if test -e "$currFile" && ! test -e "$stageFile" && test -e "$headFile"; then
+    echo "$targetFile - untracked"
+    exit 1
+fi
+
+if ! test -e "$currFile" && test -e "$stageFile" && test -e "$headFile"; then
+    echo "$targetFile - file deleted"
+    exit 0
+fi
+
+# Two files missing
+if test -e "$currFile" && ! test -e "$stageFile" && ! test -e "$headFile"; then
+    echo "$targetFile - untracked"
+    exit 1
+fi
+
+if ! test -e "$currFile" && test -e "$stageFile" && ! test -e "$headFile"; then
+    echo "$targetFile - added to index, file deleted"
+    exit 0
+fi
+
+if ! test -e "$currFile" && ! test -e "$stageFile" && test -e "$headFile"; then
+    echo "$targetFile - deleted"
+    exit 0
+fi
+
+# Target file doesn't exist in all 3 key locations
+if ! test -e "$currFile" && ! test -e "$stageFile" && ! test -e "$headFile"; then
+    echo "$targetFile - doesn't exist in this branch"
+    exit 1
+fi
+

@@ -9,7 +9,7 @@ if ! test -e $repoName; then
 fi
 
 # If no commits, don't allow the use of branches
-if ! sh get-head > /dev/null; then
+if ! shrug-get-head > /dev/null; then
     echo "$thisFile: error: your repository does not have any commits yet"
     exit 1
 fi
@@ -48,8 +48,6 @@ elif test $# -eq 1; then
             if test -e $logFile; then
                 cat $logFile > "$newBranch/.log" 
             fi
-            # TODO: more spaghet
-            rm "$unmerged" 2> /dev/null
         else
             echo "$thisFile: error: invalid branch name '$branchName'"
         fi
@@ -70,12 +68,6 @@ elif test $# -eq 2; then
                 exit 1
             elif test "$(readlink $repoName/$currBranch)" = $branchName; then
                 echo "$thisFile: error: can't delete the current branch you're on"
-                exit 1
-            fi
-            # Throw error if there is unmerged work in the target branch
-            # TODO: lol spaghetti
-            if test -e "$unmerged"; then
-                echo "$thisFile: error: branch '$branchName' has unmerged changes"
                 exit 1
             fi
             # Deleting the branch

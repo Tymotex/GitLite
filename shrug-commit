@@ -1,6 +1,8 @@
 #!/bin/dash
 
+# Initialises variables used in this script
 . shrug-conf
+# Checks if the repo exists
 . shrug-exists
 
 message=""
@@ -35,8 +37,7 @@ while test $# -gt 0; do  # $# is the number of args
 done
 
 # Checks if the commit should proceed or if there's 'nothing to commit'
-# TODO: Alternative to sh? Why does dash not work?
-if ! sh shrug-should-commit > /dev/null; then
+if ! shrug-should-commit > /dev/null; then
     echo "nothing to commit"
     exit 1
 fi
@@ -50,11 +51,8 @@ done
 # Creating a snapshot folder
 mkdir "$commitDir" || exit 1
 
-
 # First remove everything in the current branch
-cd $repoName/$currBranch
-rm $(ls) 2> /dev/null
-cd ../..
+rm "$repoName/$currBranch/*" 2> /dev/null
 
 # For each file in the index/staging area, copy each into the snapshot folder
 for eachFile in $(ls "${stageDir}"); do
@@ -73,5 +71,3 @@ else
 fi
 
 echo "Committed as commit $commitNum"
-# TODO: lol spaghetti
-touch "$unmerged"

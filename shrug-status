@@ -1,27 +1,28 @@
 #!/bin/dash
 
+# Initialises variables used in this script
 . shrug-conf
-cwd=$(pwd)
+# Checks if the repo exists
+. shrug-exists
 
 # TODO: Terrible code
 latestBranchCommit=$(shrug-log | head -1 | cut -d' ' -f1)
 headDir="$repoName/$latestBranchCommit"
 
-
 # Check if the repository has any commits
-if ! sh get-head > /dev/null; then
+if ! shrug-get-head > /dev/null; then
     echo "$thisFile: error: your repository does not have any commits yet"
     exit 1
 fi
 
 stageFiles=$(ls $stageDir)
-cwdFiles=$(ls $cwd)
+cwdFiles=$(ls)
 headFiles=$(ls $headDir)
 
 for eachFile in $(echo $stageFiles $cwdFiles $headFiles | tr " " "\n" | sort | uniq | tr "\n" " "); do
     stageFile="$stageDir/$eachFile"
     headFile="$headDir/$eachFile"
-    currFile="$cwd/$eachFile"
+    currFile="$eachFile"
     # TODO: catch invalid filenames
 
     # All files exist
