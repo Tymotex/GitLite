@@ -60,8 +60,10 @@ if shrug-directory-diff "$baseDir" "$currBranchDir" > /dev/null; then
 
     # Update the log file of current branch
     cp "$branchTipDir/.log" "$logFile"
-
     echo "Fast-forward: no commit created"
+
+    # Mark the target branch as merged so that it can be safely deleted without losing work
+    rm "$unmerged" 2> /dev/null
 else
     # Attempting to auto-merge
     isConflict=false
@@ -129,4 +131,7 @@ else
     cat "$logFile" "$repoName/$targetBranch/.log" | sort -r | uniq > tmp
     cp tmp "$logFile"
     rm tmp
+
+    # Mark the target branch as merged so that it can be safely deleted without losing work
+    rm "$unmerged" 2> /dev/null
 fi

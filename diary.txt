@@ -41,13 +41,43 @@ Activity: coding
 Comments: done with subset 1's commit -a and started status
 
 07/07/20
-Start: 5:00
-End: 7:32
+Start: 6:30
+End: 10:00
 Activity: coding
-Comments: done with subset 1's status and rm, first draft
+Comments: cleaned up subset 1 and edge case handling
 
-07/07/20
-Start: 7:40
-End: 8:08
+08/07/20
+Start: 3:30
+End: 5:00
+Activity: refactoring
+Comments: rearranged file structure for branching
+
+09/07/20
+Start: 5:40
+End: 8:00
+Activity: researching and testing
+Comments: planning and testing subset 2 merge
+
+10/17/20
+Start: 4:00
+End: 6:00
 Activity: coding
+Comments: completing first draft of branch and checkout
+
+12/07/20
+Start: 1:30
+End: 4:30
+Activity: coding
+Comments: mostly completed apart from merge
+
+14/07/20
+Start: 6:40
+End: 10:00
+Activity: coding
+Comments: most of branch merge is working
+
+15/07/20
+Start: 2:40
+End: 5:10
+Activity: refactoring
 Comments: started checkout using symlinks

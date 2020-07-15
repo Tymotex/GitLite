@@ -48,6 +48,8 @@ elif test $# -eq 1; then
             if test -e $logFile; then
                 cat $logFile > "$newBranch/.log" 
             fi
+            # TODO: more spaghet
+            rm "$unmerged" 2> /dev/null
         else
             echo "$thisFile: error: invalid branch name '$branchName'"
         fi
@@ -71,8 +73,11 @@ elif test $# -eq 2; then
                 exit 1
             fi
             # Throw error if there is unmerged work in the target branch
-            # How does git decide this?
-
+            # TODO: lol spaghetti
+            if test -e "$unmerged"; then
+                echo "$thisFile: error: branch '$branchName' has unmerged changes"
+                exit 1
+            fi
             # Deleting the branch
             echo "Deleted branch '$branchName'"
             rm -r "$branchDir"

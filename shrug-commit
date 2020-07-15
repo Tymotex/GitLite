@@ -73,3 +73,5 @@ else
 fi
 
 echo "Committed as commit $commitNum"
+# TODO: lol spaghetti
+touch "$unmerged"
