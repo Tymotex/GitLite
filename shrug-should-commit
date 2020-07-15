@@ -10,17 +10,21 @@
 # Checks if the repo exists
 . shrug-exists
 
+latestBranchCommit=$(shrug-log | head -1 | cut -d' ' -f1)
+headDir="$repoName/$latestBranchCommit"
+
 # For each file in the stage, check if it is in the head commit. If it is,
 # then additionally check whether there is a difference. 
 for eachFile in $(ls $stageDir); do
     stageFile="$stageDir/$eachFile"
-    headFile="$headDir/$eachFile"
+    latestBranchCommit=$(shrug-log | head -1 | cut -d' ' -f1)
+    headFile="$repoName/$latestBranchCommit/$targetFile"
     echo "Comparing: $stageFile and $headFile"
     
     if test -e "$headFile"; then
         # If the file exists in both the head AND stage, check if they are identical
         echo " ===> File exists in the head directory"
-        if test -z "$(diff $headFile $stageFile)"; then
+        if diff $headFile $stageFile > /dev/null 2> /dev/null && test -z "$(diff $headFile $stageFile)"; then
             echo " ===> Files are identical!"
         else 
             # Stage has a file that's been modified. The commit should proceed
@@ -36,7 +40,8 @@ done
 
 for eachFile in $(ls $headDir); do
     stageFile="$stageDir/$eachFile"
-    headFile="$headDir/$eachFile"
+    latestBranchCommit=$(shrug-log | head -1 | cut -d' ' -f1)
+    headFile="$repoName/$latestBranchCommit/$targetFile"
     
     echo "Comparing: $stageFile and $headFile"
     if ! test -e "$stageFile"; then

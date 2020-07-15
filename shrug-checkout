@@ -68,10 +68,10 @@ else
     # For each file in either the stage, cwd or target branch
     for eachFile in $(echo $stageFiles $cwdFiles $branchFiles | tr " " "\n" | sort | uniq | tr "\n" " "); do
         if test -e "$repoName/$branchName/$eachFile"; then
-            if ! shrug-file-should-commit $eachFile > /dev/null; then
+            if ! shrug-file-should-commit $eachFile > /dev/null || ! test -e "$eachFile"; then
                 rm "$eachFile" 2> /dev/null
                 rm "$stageDir/$eachFile" 2> /dev/null
-                cp "$repoName/$branchName/$eachFile" "$eachFile"
+                cp "$repoName/$branchName/$eachFile" "$eachFile" 
                 cp "$repoName/$branchName/$eachFile" "$stageDir/$eachFile"
             fi  
         else

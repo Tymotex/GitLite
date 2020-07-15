@@ -105,13 +105,15 @@ else
         targetFile="$targetBranchDir/$eachFile"
 
         if test -e "$currFile" && test -e "$targetFile"; then
+            if ! (test -z "$(diff $currFile $targetFile)" || test -z "$(diff $currFile $baseFile)"); then
+                echo "Auto-merging $eachFile"
+            fi
             diff -u "$baseFileCopy" "$currFile" > .patch.1 2> /dev/null
             diff -u "$baseFileCopy" "$targetFile" > .patch.2 2> /dev/null
             patch --merge < .patch.1 > /dev/null
             patch --merge < .patch.2 > /dev/null
             cp "$baseFileCopy" "$currFile" 2> /dev/null
             rm "$baseFileCopy" 2> /dev/null
-            echo "Auto-merging $eachFile"
             shrug-add $eachFile
             rm "${eachFile}.orig" ".patch.1" ".patch.2" 2> /dev/null
         elif test -e "$targetFile"; then

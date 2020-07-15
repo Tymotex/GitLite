@@ -1,5 +1,5 @@
 #!/bin/dash
-# Tests show
+# Tests branch and checkout
 
 echo "===== Mine ====="
 
@@ -18,8 +18,10 @@ shrug-rm b
 shrug-rm --cached c
 echo new contents > d
 shrug-add d
+shrug-status
 
 shrug-checkout b1
+shrug-status
 
 
 echo "===== Reference ====="
@@ -39,5 +41,7 @@ rm a
 2041 shrug-rm --cached c
 echo new contents > d
 2041 shrug-add d
+2041 shrug-status
 
 2041 shrug-checkout b1
+2041 shrug-status
