@@ -1,12 +1,9 @@
 #!/bin/dash
 
+# Initialises variables used in this script
 . shrug-conf
-
-# No shrug directory
-if ! test -e $repoName; then
-    echo "$thisFile: error: no .shrug directory containing shrug repository exists"
-    exit 1
-fi
+# Checks if the repo exists
+. shrug-exists
 
 # If no commits, don't allow the use of branches
 if ! shrug-get-head > /dev/null; then
@@ -15,19 +12,19 @@ if ! shrug-get-head > /dev/null; then
 fi
 
 if test $# = 0; then
-    # Print all branches in the repo directory
-    # Filter out index, current-branch and commit subdirectories
+    # Printing all branches in the repo directory.
+    # Filter out the index subdirectory, current-branch symbolic link and commits
     ls "$repoName" | tr ' ' '\n' | egrep -v "index|$currBranch|^[0-9]+" 
 elif test $# -eq 1; then
     if test $1 = "-d"; then
-        # Only -d was supplied
+        # Error when only -d was supplied
         echo "$thisFile: error: branch name required"
         exit 1
     else
         # Treating first argument as the new branch name
         # Check for invalid branch name
         branchName=$1
-        if sh shrug-validname $branchName > /dev/null; then
+        if shrug-validname $branchName > /dev/null; then
             newBranch="$repoName/$branchName"
             newBranchBase="$repoName/.$branchName-base"
             if test -e $newBranch; then
@@ -36,15 +33,15 @@ elif test $# -eq 1; then
             fi
 
             # Creating a new branch and save the base commit
-            mkdir "$newBranch"
-            mkdir "$newBranchBase"
+            mkdir "$newBranch" "$newBranchBase"
 
-            # Copy over all files over the new branch directory
-            cd "$repoName/$currBranch"  # TODO: bad style
+            # Copy over all files over to the new branch directory
+            cd "$repoName/$currBranch"  
             cp $(ls) "../$branchName"  
             cp $(ls) "../.${branchName}-base"  
             cd ../../
-            # Copy over the log file, if it exists
+
+            # Copy over the log file to the newly created branch
             if test -e $logFile; then
                 cat $logFile > "$newBranch/.log" 
             fi
@@ -55,7 +52,7 @@ elif test $# -eq 1; then
 elif test $# -eq 2; then
     if test $1 = "-d"; then
         branchName=$2
-        if sh shrug-validname $branchName; then
+        if shrug-validname $branchName; then
             # Target branch doesn't exist
             branchDir="$repoName/$branchName"
             if ! test -e $branchDir; then
@@ -72,7 +69,7 @@ elif test $# -eq 2; then
             fi
             # Deleting the branch
             echo "Deleted branch '$branchName'"
-            rm -r "$branchDir"
+            rm -r "$branchDir" 2> /dev/null
         else
             echo "$thisFile: error: invalid branch name '$branchName'"
         fi        

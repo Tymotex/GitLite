@@ -1,6 +1,8 @@
 #!/bin/dash
 
+# Initialises variables used in this script
 . shrug-conf
+# Checks if the repo exists
 . shrug-exists
 
 branchName=$1
@@ -57,7 +59,6 @@ else
             fi
         fi
     done
-
     if test $willOverwrite = "true"; then
         exit 1
     fi
@@ -78,8 +79,7 @@ else
             fi  
         fi
     done
-    cd $repoName
-
+    cd "$repoName"
     ln -sfn "$branchName" "$currBranch"
     echo "Switched to branch '$branchName'"
 fi

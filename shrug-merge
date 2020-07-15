@@ -1,6 +1,8 @@
 #!/bin/dash
 
+# Initialises variables used in this script
 . shrug-conf
+# Checks if the repo exists
 . shrug-exists
 
 # Getting the target branch
@@ -72,7 +74,7 @@ else
     currBranchFiles=$(ls $currBranchDir)
     targetBranchFiles=$(ls $targetBranchDir)
 
-    fileSet=$(echo $currBranchFiles $baseFiles $targetBranchFiles | tr " " "\n" | sort | uniq | tr "\n" " ")
+    fileSet=$(ls $currBranchDir $baseDir $targetBranchDir | tr " " "\n" | sort | uniq | tr "\n" " ")
     for eachFile in $fileSet; do
         currFile="$currBranchDir/$eachFile"
         baseFile="$baseDir/$eachFile"

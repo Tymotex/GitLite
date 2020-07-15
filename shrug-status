@@ -5,7 +5,6 @@
 # Checks if the repo exists
 . shrug-exists
 
-# TODO: Terrible code
 latestBranchCommit=$(shrug-log | head -1 | cut -d' ' -f1)
 headDir="$repoName/$latestBranchCommit"
 
@@ -25,16 +24,20 @@ for eachFile in $(echo $stageFiles $cwdFiles $headFiles | tr " " "\n" | sort | u
     currFile="$eachFile"
     # TODO: catch invalid filenames
 
-    # All files exist
+    # Cases where the current file exists in CWD, stage and head:
     if test -e "$currFile" && test -e "$stageFile" && test -e "$headFile"; then
         if test -z "$(diff $currFile $stageFile)"; then
+            # CWD file is identical to the stage file
             if test -z "$(diff $stageFile $headFile)"; then
+                # Stage file is identical to the head file
                 echo "$eachFile - same as repo"
             else 
                 echo "$eachFile - file changed, changes staged for commit"
             fi
         else
+            # CWD file is different to the stage file
             if test -z "$(diff $stageFile $headFile)"; then
+                # Stage file is identical to the head file
                 echo "$eachFile - file changed, changes not staged for commit"
             else 
                 echo "$eachFile - file changed, different changes staged for commit"
@@ -42,7 +45,7 @@ for eachFile in $(echo $stageFiles $cwdFiles $headFiles | tr " " "\n" | sort | u
         fi
     fi
 
-    # One file missing
+    # One file missing from either CWD, stage or head
     if test -e "$currFile" && test -e "$stageFile" && ! test -e "$headFile"; then
         if test -z "$(diff $currFile $stageFile)"; then
             echo "$eachFile - added to index"
@@ -59,7 +62,7 @@ for eachFile in $(echo $stageFiles $cwdFiles $headFiles | tr " " "\n" | sort | u
         echo "$eachFile - file deleted"
     fi
 
-    # Two files missing
+    # Two files missing from CWD, stage or head
     if test -e "$currFile" && ! test -e "$stageFile" && ! test -e "$headFile"; then
         echo "$eachFile - untracked"
     fi
