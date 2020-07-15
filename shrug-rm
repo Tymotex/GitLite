@@ -51,7 +51,7 @@ for eachFile in "$@"; do
     headFile="$headDir/$eachFile"
     currFile="$eachFile"
     # Check that the filename is valid
-    if ! sh shrug-validname "$eachFile"; then
+    if ! shrug-validname "$eachFile"; then
         echo "$thisFile: error: invalid filename '$eachFile'"
         exit 1
     fi
@@ -65,12 +65,15 @@ for eachFile in "$@"; do
                     rm $currFile $stageFile
                 else 
                     echo "$thisFile: error: '$eachFile' has changes staged in the index"
+                    exit 1
                 fi
             else
                 if test -z "$(diff $stageFile $headFile)"; then
                     echo "$thisFile: error: '$eachFile' in repository is different to working file"
+                    exit 1
                 else 
                     echo "$thisFile: error: '$eachFile' in index is different to both working file and repository"
+                    exit 1
                 fi
             fi
         elif test $cached = true && test $force = true; then
@@ -89,6 +92,7 @@ for eachFile in "$@"; do
                     rm $stageFile
                 else 
                     echo "$thisFile: error: '$eachFile' in index is different to both working file and repository"
+                    exit 1
                 fi
             fi
         elif test $force = true; then 
@@ -100,8 +104,10 @@ for eachFile in "$@"; do
             # Default deletion from both stage and index
             if test -z "$(diff $currFile $stageFile)"; then
                 echo "$thisFile: error: '$eachFile' has changes staged in the index"
+                exit 1
             else
                 echo "$thisFile: error: '$eachFile' in index is different to both working file and repository"
+                exit 1
             fi
         elif test $cached = true && test $force = true; then
             # Force delete the file from the index
@@ -113,28 +119,29 @@ for eachFile in "$@"; do
             else
                 rm $stageFile
                 echo "$thisFile: error: '$eachFile' in index is different to both working file and repository"
+                exit 1
             fi
         elif test $force = true; then 
             rm "$stageFile" "$currFile"
         fi
     elif test -e "$currFile" && ! test -e "$stageFile" && test -e "$headFile"; then
         echo "$thisFile: error: '$eachFile' is not in the shrug repository"
-        exit 0
+        exit 1
     elif ! test -e "$currFile" && test -e "$stageFile" && test -e "$headFile"; then
         rm $stageFile
-        exit 0
+        exit 1
     # Two files missing from CWD, stage or head
     elif test -e "$currFile" && ! test -e "$stageFile" && ! test -e "$headFile"; then
         echo "$thisFile: error: '$eachFile' is not in the shrug repository"
-        exit 0
+        exit 1
     elif ! test -e "$currFile" && test -e "$stageFile" && ! test -e "$headFile"; then
         rm $stageFile
-        exit 0
+        exit 1
     elif ! test -e "$currFile" && ! test -e "$stageFile" && test -e "$headFile"; then
         echo "$thisFile: error: '$eachFile' is not in the shrug repository"
-        exit 0
+        exit 1
     elif ! test -e "$currFile" && ! test -e "$stageFile" && ! test -e "$headFile"; then
         echo "$thisFile: error: '$eachFile' is not in the shrug repository"
-        exit 0
+        exit 1
     fi
 done

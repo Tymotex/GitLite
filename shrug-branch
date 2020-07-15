@@ -33,7 +33,7 @@ elif test $# -eq 1; then
             fi
 
             # Creating a new branch and save the base commit
-            mkdir "$newBranch" "$newBranchBase"
+            mkdir "$newBranch" "$newBranchBase" 2> /dev/null
 
             # Copy over all files over to the new branch directory
             cd "$repoName/$currBranch"  
@@ -47,6 +47,7 @@ elif test $# -eq 1; then
             fi
         else
             echo "$thisFile: error: invalid branch name '$branchName'"
+            exit 1
         fi
     fi
 elif test $# -eq 2; then
@@ -55,6 +56,7 @@ elif test $# -eq 2; then
         if shrug-validname $branchName; then
             # Target branch doesn't exist
             branchDir="$repoName/$branchName"
+            branchBase="$repoName/.${branchName}-base"
             if ! test -e $branchDir; then
                 echo "$thisFile: error: branch '$branchName' does not exist"
                 exit 1
@@ -69,9 +71,10 @@ elif test $# -eq 2; then
             fi
             # Deleting the branch
             echo "Deleted branch '$branchName'"
-            rm -r "$branchDir" 2> /dev/null
+            rm -r "$branchDir" "$branchBase" 2> /dev/null
         else
             echo "$thisFile: error: invalid branch name '$branchName'"
+            exit 1
         fi        
     else
         echo "usage: $thisFile [-d] <branch>"

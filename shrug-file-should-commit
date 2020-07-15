@@ -1,20 +1,16 @@
 #!/bin/dash
 # Exits with 1 if nothing to commit. Exits with 0 otherwise
 
+# Initialises variables used in this script
 . shrug-conf
-cwd=$(pwd)
 
 targetFile=$1
 stageFile="$stageDir/$targetFile"
-headFile="$headDir/$targetFile"
-currFile="$cwd/$targetFile"
-
-# TODO: Terrible code
+currFile="$targetFile"
 latestBranchCommit=$(shrug-log | head -1 | cut -d' ' -f1)
 headFile="$repoName/$latestBranchCommit/$targetFile"
-# echo " ---> Head commit file: $headFile"
 
-# All files exist
+# Cases where the current file exists in CWD, stage and head
 if test -e "$currFile" && test -e "$stageFile" && test -e "$headFile"; then
     if test -z "$(diff $currFile $stageFile)"; then
         if test -z "$(diff $stageFile $headFile)"; then
@@ -35,7 +31,7 @@ if test -e "$currFile" && test -e "$stageFile" && test -e "$headFile"; then
     fi
 fi
 
-# One file missing
+# One file missing from either CWD, stage or head
 if test -e "$currFile" && test -e "$stageFile" && ! test -e "$headFile"; then
     if test -z "$(diff $currFile $stageFile)"; then
         echo "$targetFile - added to index"
@@ -56,7 +52,7 @@ if ! test -e "$currFile" && test -e "$stageFile" && test -e "$headFile"; then
     exit 0
 fi
 
-# Two files missing
+# Two files missing from CWD, stage or head
 if test -e "$currFile" && ! test -e "$stageFile" && ! test -e "$headFile"; then
     echo "$targetFile - untracked"
     exit 0
@@ -72,6 +68,7 @@ if ! test -e "$currFile" && ! test -e "$stageFile" && test -e "$headFile"; then
     exit 0
 fi
 
+# Target file is missing from all 3 key directories
 if ! test -e "$currFile" && ! test -e "$stageFile" && ! test -e "$headFile"; then
     echo "$targetFile - doesn't exist in this branch"
     exit 1

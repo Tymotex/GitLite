@@ -5,7 +5,9 @@
 # are currently not in the latest head directory.
 # Otherwise exit with status 1 if there is nothing to commit
 
+# Initialises variables used in this script
 . shrug-conf
+# Checks if the repo exists
 . shrug-exists
 
 # For each file in the stage, check if it is in the head commit. If it is,

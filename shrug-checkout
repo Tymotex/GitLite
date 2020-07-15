@@ -40,11 +40,13 @@ else
         # If the file exists in target branch AND cwd BUT NOT in index, then
         # replacing this file would overwrite uncommitted changes
         if test -e "$branchFile" && test -e "$cwdFile" && ! test -e "$stageFile"; then
-            if test $willOverwrite = "false"; then
-                echo "$thisFile: error: Your changes to the following files would be overwritten by checkout:"
-                willOverwrite=true
+            if ! test -z "$(diff $cwdFile $branchFile)"; then 
+                if test $willOverwrite = "false"; then
+                    echo "$thisFile: error: Your changes to the following files would be overwritten by checkout:"
+                    willOverwrite=true
+                fi
+                echo "$eachFile"
             fi
-            echo "$eachFile"
         fi
 
         # If the file doesn't exist in the target branch, checkout may deleted uncommitted

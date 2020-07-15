@@ -1,6 +1,5 @@
 #!/bin/dash
 
-echo "===== Wiping .shrug ====="
 rm -rf .shrug
 rm * 2> /dev/null
 shrug-init

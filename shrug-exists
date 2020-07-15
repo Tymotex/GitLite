@@ -1,6 +1,7 @@
 #!/bin/dash
 # Checks if the repo exists in the current directory
 
+# Initialises variables used in this script
 . shrug-conf
 
 if ! test -e "$repoName"; then

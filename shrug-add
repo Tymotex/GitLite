@@ -30,7 +30,7 @@ for eachFile in "$@"; do
             # Proceed to remove the target from the index
             rm "$stageDir/$eachFile"
         else 
-            if ! sh shrug-validname "$eachFile"; then
+            if ! shrug-validname "$eachFile"; then
                 # Check that the filename is valid
                 echo "$thisFile: error: invalid filename '$eachFile'"
                 exit 1

@@ -3,12 +3,12 @@
 # or doesn't exist in the branch 
 # Exits with 0 otherwise
 
+# Initialises variables used in this script
 . shrug-conf
-cwd=$(pwd)
 
 targetFile=$1
 stageFile="$stageDir/$targetFile"
-currFile="$cwd/$targetFile"
+currFile="$targetFile"
 latestBranchCommit=$(shrug-log | head -1 | cut -d' ' -f1)
 headFile="$repoName/$latestBranchCommit/$targetFile"
 

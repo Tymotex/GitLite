@@ -70,18 +70,16 @@ else
     baseDir="$repoName/.${targetBranch}-base"
     currBranchDir="$repoName/$currBranch"
     targetBranchDir="$repoName/$targetBranch"
-    baseFiles="$(ls $baseDir)"
-    currBranchFiles=$(ls $currBranchDir)
-    targetBranchFiles=$(ls $targetBranchDir)
-
+    # Form a set of the files present in the 3 directories: base, cwd and target branch
     fileSet=$(ls $currBranchDir $baseDir $targetBranchDir | tr " " "\n" | sort | uniq | tr "\n" " ")
+    
     for eachFile in $fileSet; do
         currFile="$currBranchDir/$eachFile"
         baseFile="$baseDir/$eachFile"
         baseFileCopy="${eachFile}-base"
         cp "$baseFile" "$baseFileCopy" 2> /dev/null
         targetFile="$targetBranchDir/$eachFile"
-
+        # Use a copy of the base file as a merging dryrun
         diff -u "$baseFileCopy" "$currFile" > .patch.1 2> /dev/null
         diff -u "$baseFileCopy" "$targetFile" > .patch.2 2> /dev/null
         patch --merge < .patch.1 > /dev/null
@@ -126,7 +124,7 @@ else
     shrug-commit -m "$message"
 
     # Merging the log files from the two branches
-    # Using tmp file to workaround a concurrency bug(?)... ;(
+    # Using tmp file to workaround a concurrency bug(?)... :(
     cat "$logFile" "$repoName/$targetBranch/.log" | sort -r | uniq > tmp
     cp tmp "$logFile"
     rm tmp
