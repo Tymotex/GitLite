@@ -1,6 +1,12 @@
-### COMP(2041|9044) 20T2: ass1: shrug ###
-
-Do not push changes to this repository directly.
-Do not change the repository via the web interface.
-
-Submit your work using usage: give class assignment [files...], and it will be automatically pushed to this repository.
+# GitLite
+A lite version control system, similar to Git, implemented in POSIX-compatible shell command language. Supports the following classic commands:
+- `gitlite-init`
+- `gitlite-add <files>`
+- `gitlite-commit [-a] -m "commit message"`
+- `gitlite-log`
+- `gitlite-show [commit]:filename`
+- `gitlite-rm [--force] [--cached] <files>`
+- `gitlite-status`
+- `gitlite-branch [-d] [branchname]`
+- `gitlite-checkout <branchname>`
+- `gitlite-merge <branchname>`
