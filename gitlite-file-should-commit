@@ -1,0 +1,76 @@
+#!/bin/dash
+# Exits with 1 if nothing to commit. Exits with 0 otherwise
+
+# Initialises variables used in this script
+. gitlite-conf
+
+targetFile=$1
+stageFile="$stageDir/$targetFile"
+currFile="$targetFile"
+latestBranchCommit=$(gitlite-log | head -1 | cut -d' ' -f1)
+headFile="$repoName/$latestBranchCommit/$targetFile"
+
+# Cases where the current file exists in CWD, stage and head
+if test -e "$currFile" && test -e "$stageFile" && test -e "$headFile"; then
+    if test -z "$(diff $currFile $stageFile)"; then
+        if test -z "$(diff $stageFile $headFile)"; then
+            echo "$targetFile - same as repo"
+            exit 1
+        else 
+            echo "$targetFile - file changed, changes staged for commit"
+            exit 0
+        fi
+    else
+        if test -z "$(diff $stageFile $headFile)"; then
+            echo "$targetFile - file changed, changes not staged for commit"
+            exit 0
+        else 
+            echo "$targetFile - file changed, different changes staged for commit"
+            exit 0
+        fi
+    fi
+fi
+
+# One file missing from either CWD, stage or head
+if test -e "$currFile" && test -e "$stageFile" && ! test -e "$headFile"; then
+    if test -z "$(diff $currFile $stageFile)"; then
+        echo "$targetFile - added to index"
+        exit 0
+    else
+        echo "$targetFile - added to index, file changed"
+        exit 0
+    fi
+fi
+
+if test -e "$currFile" && ! test -e "$stageFile" && test -e "$headFile"; then
+    echo "$targetFile - untracked"
+    exit 0
+fi
+
+if ! test -e "$currFile" && test -e "$stageFile" && test -e "$headFile"; then
+    echo "$targetFile - file deleted"
+    exit 0
+fi
+
+# Two files missing from CWD, stage or head
+if test -e "$currFile" && ! test -e "$stageFile" && ! test -e "$headFile"; then
+    echo "$targetFile - untracked"
+    exit 0
+fi
+
+if ! test -e "$currFile" && test -e "$stageFile" && ! test -e "$headFile"; then
+    echo "$targetFile - added to index, file deleted"
+    exit 0
+fi
+
+if ! test -e "$currFile" && ! test -e "$stageFile" && test -e "$headFile"; then
+    echo "$targetFile - deleted"
+    exit 0
+fi
+
+# Target file is missing from all 3 key directories
+if ! test -e "$currFile" && ! test -e "$stageFile" && ! test -e "$headFile"; then
+    echo "$targetFile - doesn't exist in this branch"
+    exit 1
+fi
+

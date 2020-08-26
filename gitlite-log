@@ -1,0 +1,14 @@
+#!/bin/dash
+# Shows the current branch's commit log
+
+# Initialises variables used in this script
+. gitlite-conf
+# Checks if the repo exists
+. gitlite-exists
+
+if ! test -e "$logFile"; then
+    echo "$thisFile: error: your repository does not have any commits yet"
+    exit 1
+else
+    cat "$logFile"
+fi

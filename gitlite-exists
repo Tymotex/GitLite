@@ -1,0 +1,10 @@
+#!/bin/dash
+# Checks if the repo exists in the current directory
+
+# Initialises variables used in this script
+. gitlite-conf
+
+if ! test -e "$repoName"; then
+    echo "$thisFile: error: no $repoName directory containing gitlite repository exists"
+    exit 1
+fi

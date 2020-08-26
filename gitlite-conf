@@ -1,0 +1,17 @@
+#!/bin/dash
+# Initialises variables used by other gitlite scripts
+
+# Strips the leading path up to the last forward slash /
+thisFile=$(basename "$0")
+
+repoName=".gitlite"
+master="master"
+currBranch="current-branch"
+stage="index"
+stageDir="$repoName/$stage"
+logFile="$repoName/$currBranch/.log"
+
+commitNum=0
+commitDir="$repoName/$commitNum"
+latestCommit=$(gitlite-get-head)
+headDir="$repoName/$latestCommit"

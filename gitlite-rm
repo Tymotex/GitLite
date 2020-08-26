@@ -1,0 +1,147 @@
+#!/bin/dash
+
+# Initialises variables used in this script
+. gitlite-conf
+# Checks if the repo exists
+. gitlite-exists
+
+default=true
+force=false
+cached=false
+while test $# -gt 0; do
+    case "$1" in
+        --force) 
+            default=false
+            force=true
+            shift
+            ;;
+        --cached)
+            default=false
+            cached=true
+            shift
+            ;;
+        *)
+            break
+            shift
+            ;;
+    esac
+done
+
+if test $# -le 0; then
+    echo "usage: $thisFile [--force] [--cached] <filenames>"
+    exit 1
+fi
+
+# First check if all the supplied filenames exist in the current directory or index
+for eachFile in "$@"; do
+    if ! test -e "$stageDir/$eachFile"; then
+        echo "$thisFile: error: '$eachFile' is not in the gitlite repository"
+        exit 1
+    else
+        continue
+    fi
+done
+
+stageFiles=$(ls $stageDir)
+cwdFiles=$(ls)
+headFiles=$(ls $headDir)
+
+for eachFile in "$@"; do
+    stageFile="$stageDir/$eachFile"
+    headFile="$headDir/$eachFile"
+    currFile="$eachFile"
+    # Check that the filename is valid
+    if ! gitlite-validname "$eachFile"; then
+        echo "$thisFile: error: invalid filename '$eachFile'"
+        exit 1
+    fi
+
+    # Cases where the current file exists in CWD, stage and head
+    if test -e "$currFile" && test -e "$stageFile" && test -e "$headFile"; then
+        # Default deletion from both stage and index
+        if test $default = true; then
+            if test -z "$(diff $currFile $stageFile)"; then
+                if test -z "$(diff $stageFile $headFile)"; then
+                    rm $currFile $stageFile
+                else 
+                    echo "$thisFile: error: '$eachFile' has changes staged in the index"
+                    exit 1
+                fi
+            else
+                if test -z "$(diff $stageFile $headFile)"; then
+                    echo "$thisFile: error: '$eachFile' in repository is different to working file"
+                    exit 1
+                else 
+                    echo "$thisFile: error: '$eachFile' in index is different to both working file and repository"
+                    exit 1
+                fi
+            fi
+        elif test $cached = true && test $force = true; then
+            # Force delete the file from the index
+            rm "$stageFile"
+        elif test $cached = true; then
+            # Deletion from the index only
+            if test -z "$(diff $currFile $stageFile)"; then
+                if test -z "$(diff $stageFile $headFile)"; then
+                    rm $stageFile
+                else 
+                    rm $stageFile
+                fi
+            else
+                if test -z "$(diff $stageFile $headFile)"; then
+                    rm $stageFile
+                else 
+                    echo "$thisFile: error: '$eachFile' in index is different to both working file and repository"
+                    exit 1
+                fi
+            fi
+        elif test $force = true; then 
+            rm "$stageFile" "$currFile"
+        fi
+    # One file missing from either CWD, stage or head
+    elif test -e "$currFile" && test -e "$stageFile" && ! test -e "$headFile"; then
+        if test $default = true; then
+            # Default deletion from both stage and index
+            if test -z "$(diff $currFile $stageFile)"; then
+                echo "$thisFile: error: '$eachFile' has changes staged in the index"
+                exit 1
+            else
+                echo "$thisFile: error: '$eachFile' in index is different to both working file and repository"
+                exit 1
+            fi
+        elif test $cached = true && test $force = true; then
+            # Force delete the file from the index
+            rm "$stageFile"
+        elif test $cached = true; then
+            # Deletion from the index only
+            if test -z "$(diff $currFile $stageFile)"; then
+                rm "$stageFile"
+            else
+                rm $stageFile
+                echo "$thisFile: error: '$eachFile' in index is different to both working file and repository"
+                exit 1
+            fi
+        elif test $force = true; then 
+            rm "$stageFile" "$currFile"
+        fi
+    elif test -e "$currFile" && ! test -e "$stageFile" && test -e "$headFile"; then
+        echo "$thisFile: error: '$eachFile' is not in the gitlite repository"
+        exit 1
+    elif ! test -e "$currFile" && test -e "$stageFile" && test -e "$headFile"; then
+        rm $stageFile
+        exit 1
+    # Two files missing from CWD, stage or head
+    elif test -e "$currFile" && ! test -e "$stageFile" && ! test -e "$headFile"; then
+        echo "$thisFile: error: '$eachFile' is not in the gitlite repository"
+        exit 1
+    elif ! test -e "$currFile" && test -e "$stageFile" && ! test -e "$headFile"; then
+        rm $stageFile
+        exit 1
+    elif ! test -e "$currFile" && ! test -e "$stageFile" && test -e "$headFile"; then
+        echo "$thisFile: error: '$eachFile' is not in the gitlite repository"
+        exit 1
+    elif ! test -e "$currFile" && ! test -e "$stageFile" && ! test -e "$headFile"; then
+        echo "$thisFile: error: '$eachFile' is not in the gitlite repository"
+        exit 1
+    fi
+done

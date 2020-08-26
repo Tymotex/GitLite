@@ -1,0 +1,4 @@
+#!/bin/dash
+
+rm -rf .gitlite *
+2041 gitlite-init

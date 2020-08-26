@@ -1,0 +1,21 @@
+#!/bin/dash
+# Exits with status code 1 if the two directories are different. Otherwise exits with status 0
+
+dir1=$1
+dir2=$2
+dir1Files=$(ls $dir1)
+dir2Files=$(ls $dir2)
+
+fileSet=$(echo $dir1Files $dir2Files | tr " " "\n" | sort | uniq | tr "\n" " ")
+for eachFile in $(echo $dir1Files $dir2Files | tr " " "\n" | sort | uniq | tr "\n" " "); do
+    if test -e $dir1/$eachFile && test -e $dir2/$eachFile; then
+        if ! test -z "$(diff $dir1/$eachFile $dir2/$eachFile)"; then
+            # The current file is different between the two directories 
+            exit 1
+        fi
+    else
+        # The current file is missing in one of the directories
+        exit 1
+    fi
+done
+exit 0

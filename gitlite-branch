@@ -1,0 +1,82 @@
+#!/bin/dash
+
+# Initialises variables used in this script
+. gitlite-conf
+# Checks if the repo exists
+. gitlite-exists
+
+# If no commits, don't allow the use of branches
+if ! gitlite-get-head > /dev/null; then
+    echo "$thisFile: error: your repository does not have any commits yet"
+    exit 1
+fi
+
+if test $# = 0; then
+    # Printing all branches in the repo directory.
+    # Filter out the index subdirectory, current-branch symbolic link and commits
+    ls "$repoName" | tr ' ' '\n' | egrep -v "index|$currBranch|^[0-9]+" 
+elif test $# -eq 1; then
+    if test $1 = "-d"; then
+        # Error when only -d was supplied
+        echo "$thisFile: error: branch name required"
+        exit 1
+    else
+        # Treating first argument as the new branch name
+        # Check for invalid branch name
+        branchName=$1
+        if gitlite-validname $branchName > /dev/null; then
+            newBranch="$repoName/$branchName"
+            newBranchBase="$repoName/.$branchName-base"
+            if test -e $newBranch; then
+                echo "$thisFile: error: branch '$branchName' already exists"
+                exit 1
+            fi
+
+            # Creating a new branch and save the base commit
+            mkdir "$newBranch" "$newBranchBase" 2> /dev/null
+
+            # Copy over all files over to the new branch directory
+            cd "$repoName/$currBranch"  
+            cp $(ls) "../$branchName"  
+            cp $(ls) "../.${branchName}-base"  
+            cd ../../
+
+            # Copy over the log file to the newly created branch
+            if test -e $logFile; then
+                cat $logFile > "$newBranch/.log" 
+            fi
+        else
+            echo "$thisFile: error: invalid branch name '$branchName'"
+            exit 1
+        fi
+    fi
+elif test $# -eq 2; then
+    if test $1 = "-d"; then
+        branchName=$2
+        if gitlite-validname $branchName; then
+            # Target branch doesn't exist
+            branchDir="$repoName/$branchName"
+            branchBase="$repoName/.${branchName}-base"
+            if ! test -e $branchDir; then
+                echo "$thisFile: error: branch '$branchName' does not exist"
+                exit 1
+            fi
+            # Can't delete the target branch if it's the current branch OR if it's the master branch
+            if test $branchName = $master; then
+                echo "$thisFile: error: can not delete branch '$master'"
+                exit 1
+            elif test "$(readlink $repoName/$currBranch)" = $branchName; then
+                echo "$thisFile: error: can't delete the current branch you're on"
+                exit 1
+            fi
+            # Deleting the branch
+            echo "Deleted branch '$branchName'"
+            rm -r "$branchDir" "$branchBase" 2> /dev/null
+        else
+            echo "$thisFile: error: invalid branch name '$branchName'"
+            exit 1
+        fi        
+    else
+        echo "usage: $thisFile [-d] <branch>"
+    fi
+fi

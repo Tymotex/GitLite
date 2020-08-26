@@ -1,8 +1,0 @@
-#!/bin/dash
-shrug-wipe
-
-shrug-init
-seq 1 3 > a
-shrug-commit -m "Added a"
-
-
