@@ -1,6 +1,0 @@
-#!/bin/dash
-# Gets the path of the target file in the latest commit of the current branch
- 
-targetFile=$1
-latestBranchCommit=$(shrug-log | head -1 | cut -d' ' -f1)
-echo "$repoName/$latestBranchCommit/$targetFile"

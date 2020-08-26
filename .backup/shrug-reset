@@ -1,5 +1,0 @@
-#!/bin/dash
-
-rm -rf .shrug
-rm * 2> /dev/null
-shrug-init
